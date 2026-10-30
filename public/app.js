@@ -8,23 +8,24 @@ mt='bukhan';$('nick').value=localStorage.nick||'';
 $('mts').innerHTML=Object.entries(MTS).sort((x,y)=>(y[0]==='bukhan')-(x[0]==='bukhan')).map(([k,v])=>`<button data-k="${k}">${v.name}<small>${k==='bukhan'?'Baegundae trail 1.9km':v.h.toLocaleString()+'m'}</small></button>`).join('');
 const mark=()=>[...$('mts').children].forEach(b=>b.classList.toggle('on',b.dataset.k===mt));mark();
 $('mts').onclick=e=>{const b=e.target.closest('button');if(b){mt=b.dataset.k;mark()}};
-$('modes').onclick=e=>{const b=e.target.closest('button');if(!b)return;GAME.mode=b.dataset.m;localStorage.mode=GAME.mode;markM()};const markM=()=>[...$('modes').children].forEach(b=>b.classList.toggle('on',b.dataset.m===GAME.mode));markM();
-$('go').onclick=()=>{localStorage.mt=mt;localStorage.nick=$('nick').value;$('pick').classList.add('hide');connect()};
+$('go').onclick=()=>{FX.unlock();localStorage.mt=mt;localStorage.nick=$('nick').value;$('pick').classList.add('hide');connect()};
 $('chg').onclick=()=>MAP.show();
-function connect(){if(ws&&ws.readyState===1)return join();ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);ws.onopen=join;ws.onmessage=onMsg;ws.onclose=()=>setTimeout(connect,1500)}
-function join(){RH.reset();today=+(localStorage['t_'+mt+'_'+dayKey()]||0);GAME.start();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value,mode:GAME.on?'challenge':'walk'}))}
+function connect(cb){const go=cb||join;if(ws&&ws.readyState===1)return go();if(ws&&ws.readyState===0){ws.onopen=go;return}ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);ws.onopen=go;ws.onmessage=onMsg;ws.onclose=()=>{const inMp=MP.inMp();ws=null;setTimeout(()=>{if(inMp)connect(MP.rejoin);else if(me)connect()},1500)}}
+function join(){RH.reset();today=+(localStorage['t_'+mt+'_'+dayKey()]||0);FX.newRun();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value}));ws.send('{"t":"ghost"}')}
 const dayKey=()=>new Date().toLocaleDateString('sv');
-function onMsg(e){const d=JSON.parse(e.data);
+function onMsg(e){const d=JSON.parse(e.data);MP.onMsg(d);
  if(d.t==='hello'){me=d.id;mount=d.mount;room=d.room;$('mtName').textContent='⛰️ '+mount.name;$('goal').textContent='Summit '+mount.h.toLocaleString()+'m'}
  if(d.t==='state'){players=d.players;for(const p of players){if(lastH[p.id]!==undefined&&p.h>lastH[p.id])walk[p.id]=performance.now();lastH[p.id]=p.h}
-  {const mm=players.find(p=>p.id===me);if(mm&&GAME.on)GAME.onMove(mm.h)}
-  const m=players.find(p=>p.id===me);$('who').textContent=`Room ${room} · ${players.length}/100 hikers`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
- if(d.t==='summit'){const rs=GAME.on?null:RH.score(d.ms);RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms),r=GAME.result();LAST={mode:'challenge',ms:d.ms,score:r.final,det:r};setTimeout(showCard,w)}else{LAST={mode:'walk',ms:d.ms,score:rs.score,det:rs};showCard()}}
- if(d.t==='rank'&&GAME.on){$('rank').innerHTML=GAME.rankHTML(d.list);$('rank').classList.remove('hide')}}
-const step=()=>{if(ws&&ws.readyState===1&&me&&$('card').classList.contains('hide')){if(GAME.on&&!GAME.tryStep())return;ws.send('{"t":"step"}')}};
-$('stepBtn').onclick=step;onkeydown=e=>{if(e.repeat)return;if(GAME.on){if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();step()}return}if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();RH.press('L');ft('lf')}if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();RH.press('R');ft('rf')}};
+  const m=players.find(p=>p.id===me);if(m)RH.sync(m.h);$('who').textContent=`Room ${room} · ${players.length}/100 hikers`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
+ if(d.t==='summit'){const rs=RH.score(d.ms);RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;onSummit(rs,d.ms)}
+ if(d.t==='rank'){$('rank').innerHTML='<b>Today\'s Top 10 · Bukhansan</b> <small>(server-timed)</small>'+d.list.map((r,i)=>`<div>${i+1}. ${String(r.name).replace(/[<>&]/g,'')} <span>${FX.fmt(r.ms)} · ★${r.score}</span></div>`).join('');$('rank').classList.remove('hide')}
+ if(d.t==='ghost')FX.setTop(d.g)}
+function onSummit(rs,ms){setTimeout(()=>FX.quiz(q=>{rs.quiz=q;const score=rs.score+q,mis=FX.checkMissions({...rs,ms}),pb=FX.savePB(ms,rs.tl);
+  LAST={mode:'walk',ms,score,det:rs,mis,pb};ws&&ws.readyState===1&&ws.send(JSON.stringify({t:'record',score,tl:rs.tl}));SAVE.touch();showCard()}),700)}
+onkeydown=e=>{if(e.repeat)return;if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();RH.press('L');ft('lf')}if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();RH.press('R');ft('rf')}};
+$('mute').textContent=FX.muted()?'🔇':'🔊';$('mute').onclick=()=>{FX.unlock();$('mute').textContent=FX.toggleMute()?'🔇':'🔊'};
 const ft=id=>{const b=$(id);b.classList.add('dn');setTimeout(()=>b.classList.remove('dn'),90)};
-for(const[id,f]of[['lf','L'],['rf','R']])$(id).addEventListener('pointerdown',e=>{e.preventDefault();RH.press(f);ft(id)});cv.addEventListener('pointerdown',()=>{if(GAME.on&&$('card').classList.contains('hide'))GAME.jump()});
+for(const[id,f]of[['lf','L'],['rf','R']])$(id).addEventListener('pointerdown',e=>{e.preventDefault();RH.press(f);ft(id)});
 // 화면
 function resize(){DPR=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener('resize',resize);resize();
 const WORLD=()=>H*2.2; // 산 전체 높이(px)
@@ -32,7 +33,7 @@ const WORLD=()=>H*2.2; // 산 전체 높이(px)
 function trail(t){const y=t*WORLD();const x=W*(.5+.3*Math.sin(t*Math.PI*7)*(1-t*.85));return{x,y}}
 function ridge(seed,amp,base,col,par){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W;x+=8){const n=Math.sin(x*.012+seed)*.5+Math.sin(x*.031+seed*2)*.3+Math.sin(x*.07+seed*3)*.15;ctx.lineTo(x,base+cam*par+n*amp)}ctx.lineTo(W,H);ctx.fill()}
 function sy(wy){return H*.68-(wy-cam)} // 월드 y -> 화면 y
-function draw(now){requestAnimationFrame(draw);if(mount&&mount.course){PX.draw(now);if(GAME.on)GAME.draw(now);return}
+function draw(now){requestAnimationFrame(draw);if(mount&&mount.course){PX.draw(now);return}
  const m=players.find(p=>p.id===me),pr=m&&mount?m.h/mount.h:0;camT=pr*WORLD();cam+=(camT-cam)*.08;
  const k=Math.min(1,cam/WORLD());
  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,`hsl(${215-k*15},${60+k*10}%,${55-k*25}%)`);g.addColorStop(1,`hsl(${30+k*170},80%,${82-k*20}%)`);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -87,16 +88,16 @@ function makeCard(){const c=document.createElement('canvas');c.width=1080;c.heig
  x.fillStyle='#555';x.fillRect(537,520,6,125);x.fillStyle='#e8433b';x.beginPath();x.moveTo(543,520);x.lineTo(620,545);x.lineTo(543,575);x.fill();
  }x.fillStyle='#fff';x.textAlign='center';x.font='bold 64px sans-serif';x.fillText('SUMMIT CERTIFIED',540,150);
  const CN=mount.course?'Bukhansan':mount.name,CH=mount.course?836:mount.h;x.font='bold '+(CN.length>9?96:120)+'px sans-serif';x.fillText(CN,540,300);x.font='bold 56px sans-serif';x.fillText(CH.toLocaleString()+'m',540,380);
- if(GAME.on)GAME.card(x);x.textAlign='center';x.fillStyle='#fffffff0';x.beginPath();x.roundRect(90,1000,900,270,40);x.fill();x.fillStyle='#333';
+ x.textAlign='center';x.fillStyle='#fffffff0';x.beginPath();x.roundRect(90,1000,900,270,40);x.fill();x.fillStyle='#333';
  const nm=(players.find(p=>p.id===me)||{}).name||'';const d=new Date();
  x.font='bold 60px sans-serif';x.fillText(nm,540,1085);x.font='44px sans-serif';x.fillText(d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),540,1160);
  x.fillStyle='#f0602a';x.font='bold 48px sans-serif';x.fillText(`Summit #${today} today 🏁`,540,1235);
  x.fillStyle='#fff';x.font='32px sans-serif';x.fillText('Hike Korea ⛰️ Baegundae 836m · 백운대',540,1330);return c}
 let cardCv;
-function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');MAP.yahoo(()=>$('card').classList.remove('hide'))}
+function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');MAP.yahoo(()=>{$('card').classList.remove('hide');MP.afterCard()})}
 $('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'Bukhansan_Baegundae':mount.name}_summit_${dayKey()}.png`;a.click()};
 $('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`I reached the summit of ${mount.course?'Bukhansan Baegundae':mount.name} (${mount.course?836:mount.h}m) in Seoul! ⛰️ Summit #${today} today`;
  try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('Share text copied!')}}catch(e){}});
-$('again').onclick=()=>{$('card').classList.add('hide');if(GAME.on)GAME.again()};
+$('again').onclick=()=>{$('card').classList.add('hide');if(MP.again())return;RH.reset();FX.newRun()};
 
-MAP.init();
+MAP.init();SAVE.init();MP.init();addEventListener('hashchange',()=>{if(/#save=/.test(location.hash))SAVE.init();else if(/#room=/.test(location.hash)&&!MP.inMp())MP.init()});

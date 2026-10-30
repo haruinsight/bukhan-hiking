@@ -170,7 +170,7 @@ const PX=(()=>{
   ctx.restore()}
  // ── 메인 ──
  let walkPh=0,lastDS=0;
- function draw(now){layout();const m=players.find(p=>p.id===me),sh=m?m.h:0,walkMode=!GAME.on;
+ function draw(now){layout();const m=players.find(p=>p.id===me),sh=m?m.h:0,walkMode=true;
   if(walkMode)dS=RH.pos(sh);else dS+=(sh-dS)*.15;if(sh===0&&dS>sh+50)dS=0;
   camX+=(dS-camX)*(walkMode?.35:.15);camY+=(ground(camX)-camY)*.12;if(Math.abs(dS-camX)>200){camX=dS;camY=ground(dS)}
   const k=Math.min(1,camX/L);sky(now,k);const ny=far(now,k);mid(now,ny);terrain(now);
@@ -178,16 +178,16 @@ const PX=(()=>{
   ctx.textAlign='center';const labels=[];
   for(const p of players.filter(p=>p.id!==me).sort((a,b)=>a.h-b.h)){const pd=p.h+((p.id*37)%9-4),x=gx(pd);if(x<-40||x>W+40)continue;const since=Math.max(0,now-(walk[p.id]||-1e9)),y=gyd(pd);
    hiker(x,y,HS*.9,{shirt:SH[p.c%6],cap:'#f1efe6',pants:'#3a4c70'},since<500?'walk':'idle',since/125*Math.PI/2,now);if(Math.abs(x-gx(dS))>40*HS)labels.push([x,y-52*HS,p.name])}
-  if(GAME.on)GAME.under(now);
+  for(const g of FX.ghosts(now)){const x=gx(g.d);if(x<-40||x>W+40)continue;const y=gyd(g.d);if(!isFinite(g.d))continue;ctx.save();ctx.globalAlpha=.4;try{hiker(x,y,HS*.95,{shirt:g.c,cap:'#ffffff',pants:'#4a5470'},'walk',g.d*.9,now)}finally{ctx.restore()}labels.push([x,y-52*HS,g.name])}
+  FX.world(now,gx,gyd,HS);
   let ry=0;
   if(m){const x=gx(dS),y=gyd(dS);let pose,air=0;walkPh+=(dS-lastDS)*.9;lastDS=dS;
-   if(GAME.on){air=GAME.airY(now);pose=GAME.stunned()?'hurt':air>0?'jump':GAME.moving()?'walk':'idle';if(pose==='walk'&&!GAME.stunned())walkPh+=.0;}
-   else{const r=RH.anim(now);air=r.y*1.4*HS;ry=air;pose=r.pose[0]==='h'?'hop':r.pose==='idle'?'idle':'walk'}
+   {const r=RH.anim(now);air=r.y*1.4*HS;ry=air;pose=r.pose[0]==='h'?'hop':r.pose==='idle'?'idle':'walk'}
    myPose=pose;hiker(x,y-air,HS*1.08,{...ME,air},pose,walkPh,now);
    ctx.font=`bold ${Math.round(11*Math.min(1.3,HS))}px sans-serif`;pill('Me · '+m.name,x,y-air-58*HS,'#e8642a')}
   ctx.font='11px sans-serif';for(const[x,y,t]of labels)pill(t,x,y,'rgba(0,0,0,.5)');
   ctx.font='600 12px sans-serif';pill(BK.spot(dS)+'  ·  '+zone(dS).label,W/2,topY()+22,'rgba(0,0,0,.42)');
-  if(!GAME.on)RH.hud(now);ctx.textAlign='left'}
+  FX.overlay(now);RH.hud(now);ctx.textAlign='left'}
  function pill(t,x,y,c){const w=ctx.measureText(t).width+16,h=19;ctx.fillStyle=c;P();ctx.roundRect(x-w/2,y-h+5,w,h,h/2);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(t,x,y)}
  const topY=()=>{const r=document.getElementById('chg').getBoundingClientRect();return r.bottom+2};
  const sx=d=>gx(d),sy=d=>gyd(d)-40*HS;
