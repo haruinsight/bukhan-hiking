@@ -1,6 +1,6 @@
 const http=require('http'),fs=require('fs'),path=require('path'),{WebSocketServer}=require('ws');
 const DEV=process.env.DEV==='1';const PORT=process.env.PORT||8080,MAX=100,STEP=10;
-const MTS={halla:{name:'한라산',h:1947},jiri:{name:'지리산',h:1915},seorak:{name:'설악산',h:1708},deogyu:{name:'덕유산',h:1614},bukhan:{name:'북한산 백운대',h:1900,course:true}};
+const MTS={halla:{name:'한라산',h:1947},jiri:{name:'지리산',h:1915},seorak:{name:'설악산',h:1708},deogyu:{name:'덕유산',h:1614},bukhan:{name:'Bukhansan',h:1900,course:true}};
 const rooms=new Map();let nid=1;
 let rank={day:'',list:[]};const today=()=>new Date().toLocaleDateString('sv',{timeZone:'Asia/Seoul'});
 const getRank=()=>{if(rank.day!==today())rank={day:today(),list:[]};return rank.list};
@@ -10,7 +10,7 @@ const srv=http.createServer((q,r)=>{const u=q.url.split('?')[0];const f=path.joi
 const wss=new WebSocketServer({server:srv,maxPayload:512});
 function pick(mt){let n=1;for(;;n++){const k=mt+':'+n;if(!rooms.has(k))rooms.set(k,new Map());if(rooms.get(k).size<MAX)return k}}
 function bc(k){const m=rooms.get(k);if(!m)return;const s=JSON.stringify({t:'state',players:[...m.values()]});for(const p of m.values())p.ws.readyState===1&&p.ws.send(s)}
-wss.on('connection',ws=>{let k=null;const id=nid++,p={id,name:'등산객'+id,h:0,summits:0,c:Math.floor(Math.random()*6)};Object.defineProperty(p,'ws',{value:ws});
+wss.on('connection',ws=>{let k=null;const id=nid++,p={id,name:'Hiker'+id,h:0,summits:0,c:Math.floor(Math.random()*6)};Object.defineProperty(p,'ws',{value:ws});
  const leave=()=>{if(k){rooms.get(k).delete(id);bc(k);k=null}};
  let win=Date.now(),cnt=0;
  ws.on('message',m=>{const n=Date.now();if(n-win>1000){win=n;cnt=0}if(++cnt>20)return;let d;try{d=JSON.parse(m)}catch{return}

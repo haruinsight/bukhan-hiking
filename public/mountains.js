@@ -1,59 +1,59 @@
 // 산별 설정(현재 북한산만 사용). pts: [거리m, 고도m, 지점, 고도출처]
 const MOUNTAINS={
  "bukhan": {
-  "name": "북한산",
-  "peak": "백운대",
+  "name": "Bukhansan",
+  "peak": "Baegundae",
   "h": 836,
-  "course": "백운대 코스",
+  "course": "Baegundae Trail",
   "step": 10,
   "pts": [
    [
     0,
     320,
-    "백운대탐방지원센터",
+    "Trailhead Center",
     "공식"
    ],
    [
     350,
     410,
-    "도선사 갈림길",
+    "Doseonsa Junction",
     "추정"
    ],
    [
     800,
     515,
-    "하루재",
+    "Harujae Pass",
     "추정"
    ],
    [
     1000,
     500,
-    "인수암",
+    "Insuam Hermitage",
     "추정"
    ],
    [
     1400,
     650,
-    "백운대피소",
+    "Baegun Shelter",
     "추정"
    ],
    [
     1650,
     725,
-    "위문(백운봉암문)",
+    "Wimun Gate",
     "추정"
    ],
    [
     1900,
     836,
-    "백운대",
+    "Baegundae 836m",
     "공식"
    ]
   ],
   "zones": [
    {
     "to": 800,
-    "label": "숲길 · 신갈나무·소나무",
+    "label": "Forest trail · oak & pine",
     "trees": [
      "oak",
      "pine",
@@ -68,7 +68,7 @@ const MOUNTAINS={
    },
    {
     "to": 1400,
-    "label": "돌계단 · 소나무",
+    "label": "Stone steps · pine",
     "trees": [
      "pine",
      "oak",
@@ -82,7 +82,7 @@ const MOUNTAINS={
    },
    {
     "to": 1900,
-    "label": "화강암 암릉 · 쇠난간",
+    "label": "Granite ridge · iron rails",
     "trees": [
      "pine"
     ],
@@ -133,7 +133,7 @@ const MOUNTAINS={
    [
     "dome",
     0.62,
-    "인수봉"
+    "Insubong"
    ],
    [
     "jag",
@@ -143,7 +143,7 @@ const MOUNTAINS={
   "summit": "taegeukgi",
   "special": {
    "icon": "fortress",
-   "name": "북한산성"
+   "name": "Bukhansanseong Fortress"
   }
  }
 };

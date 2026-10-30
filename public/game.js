@@ -2,14 +2,14 @@
 const GAME=(()=>{
  const G={mode:localStorage.mode==='challenge'?'challenge':'walk',on:false};
  const R=n=>{const x=Math.sin(n*91.7)*43758.5453;return x-Math.floor(x)};
- const BADGES={first:['🏔️','첫 정상'],sub:['⏱️','1분 40초 이내'],nohit:['🛡️','무사고 완등'],squirrel:['🐿️','다람쥐 넘기 5회'],jump:['🦘','연속 회피 15']};
+ const BADGES={first:['🏔️','First Summit'],sub:['⏱️','Under 1:40'],nohit:['🛡️','No-Hit Climb'],squirrel:['🐿️','5 Squirrel Jumps'],jump:['🦘','15 Dodge Streak']};
  const fmt=ms=>{const s=Math.floor(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
- const JD=720,JH=58,NAME={branch:'나뭇가지',squirrel:'다람쥐',rock:'돌'};
+ const JD=720,JH=58,NAME={branch:'branch',squirrel:'squirrel',rock:'rock'};
  let S,obs,pops,toasts,score,hits,dodged,combo,best,sq,t0,lastD,splits,result,badgePop,jumpAt,stunUntil,nextStep,startAt,failed,timer;
  function reset(){S=100;score=0;hits=0;dodged=0;combo=0;best=0;sq=0;t0=0;lastD=0;splits=[];result=null;pops=[];toasts=[];badgePop=[];jumpAt=-1e9;stunUntil=0;failed=false;
   obs=[];const L=BK.L;for(let d=95;d<L-30;){const z=BK.zoneOf(d),r=R(d*1.3);const k=r<.28?'squirrel':(z.slab||r>.68)?'rock':'branch';obs.push({d,k,state:0,at:0});d+=Math.round((55+R(d+7)*70)/10)*10}}
  G.start=()=>{G.on=G.mode==='challenge'&&mt==='bukhan';reset();clearInterval(timer);const b=document.getElementById('stepBtn');
-  b.textContent=G.on?'⤴ 점프':'👣 한 걸음';document.body.classList.toggle('chal',G.on);b.classList.toggle('jump',G.on);if(!G.on)return;
+  b.textContent=G.on?'⤴ JUMP':'👣 Step';document.body.classList.toggle('chal',G.on);b.classList.toggle('jump',G.on);if(!G.on)return;
   startAt=performance.now()+2400;nextStep=startAt;timer=setInterval(tick,40)};
  function tick(){if(!G.on||failed)return;const now=performance.now();if(now<nextStep||now<stunUntil)return;
   if(uiOpen())return;
@@ -21,10 +21,10 @@ const GAME=(()=>{
  G.tryStep=()=>{G.jump();return false};
  G.onMove=d=>{if(!G.on)return;const now=performance.now();if(d<lastD){lastD=d;return}
   for(const o of obs)if(!o.state&&o.d>lastD&&o.d<=d){
-   if(now-jumpAt<JD){o.state=1;o.at=now;dodged++;combo++;best=Math.max(best,combo);if(o.k==='squirrel')sq++;const p=o.k==='squirrel'?30:20;score+=p+Math.min(combo,10)*2;pops.push({d:o.d,txt:'+'+p+(combo>2?'  연속 '+combo:''),until:now+900,c:'#fff'})}
+   if(now-jumpAt<JD){o.state=1;o.at=now;dodged++;combo++;best=Math.max(best,combo);if(o.k==='squirrel')sq++;const p=o.k==='squirrel'?30:20;score+=p+Math.min(combo,10)*2;pops.push({d:o.d,txt:'+'+p+(combo>2?'  streak '+combo:''),until:now+900,c:'#fff'})}
    else{o.state=2;o.at=now;hits++;combo=0;const dmg=o.k==='rock'?30:o.k==='branch'?22:15;S=Math.max(0,S-dmg);stunUntil=now+900;G.shake=now;
-    pops.push({d:o.d,txt:NAME[o.k]+'에 걸림! 체력 -'+dmg,until:now+1100,c:'#ffd0c8'});
-    if(S<=0){failed=true;toasts.push({t:'체력이 바닥났어요 — 점프 버튼으로 다시 도전',until:now+1e9,c:'#c0392b'})}}}
+    pops.push({d:o.d,txt:'Hit a '+NAME[o.k]+'! Stamina -'+dmg,until:now+1100,c:'#ffd0c8'});
+    if(S<=0){failed=true;toasts.push({t:'Out of stamina — tap JUMP to try again',until:now+1e9,c:'#c0392b'})}}}
   for(const p of BK.P.slice(1,-1))if(lastD<p[0]&&d>=p[0]&&t0){splits.push([p[2],Date.now()-t0]);toasts.push({t:p[2]+'  '+fmt(Date.now()-t0),until:now+1600,c:'#2e4a38'})}
   lastD=d};
  G.onSummit=ms=>{const got=JSON.parse(localStorage.bk_badges||'{}'),earn=[];const add=k=>{if(!got[k]){got[k]=1;earn.push(k)}};
@@ -44,17 +44,17 @@ const GAME=(()=>{
   const y=PX.topY()+36,sh=now-(G.shake||0)<300?Math.sin(now/20)*3:0;ctx.fillStyle='#00000055';ctx.beginPath();ctx.roundRect(14+sh,y,W-28,30,15);ctx.fill();
   ctx.fillStyle='#ffffff33';ctx.beginPath();ctx.roundRect(24+sh,y+11,W*.36,8,4);ctx.fill();ctx.fillStyle=S<25?'#ff6b5a':S<50?'#ffc94a':'#7be08f';ctx.beginPath();ctx.roundRect(24+sh,y+11,W*.36*S/100,8,4);ctx.fill();
   ctx.font='600 12px sans-serif';ctx.fillStyle='#fff';ctx.textAlign='right';ctx.fillText('⏱ '+fmt(t0?Date.now()-t0:0)+'   ★ '+score+'   💥 '+hits,W-24,y+20);
-  if(now<startAt&&startAt<1e14){const n=Math.ceil((startAt-now)/800);ctx.fillStyle='#0006';ctx.beginPath();ctx.roundRect(W/2-150,H*.34,300,96,20);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 40px sans-serif';ctx.fillText(n,W/2,H*.34+46);ctx.font='600 14px sans-serif';ctx.fillText('자동으로 걸어요 · 장애물은 점프!',W/2,H*.34+78)}
+  if(now<startAt&&startAt<1e14){const n=Math.ceil((startAt-now)/800);ctx.fillStyle='#0006';ctx.beginPath();ctx.roundRect(W/2-150,H*.34,300,96,20);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 40px sans-serif';ctx.fillText(n,W/2,H*.34+46);ctx.font='600 14px sans-serif';ctx.fillText('You walk automatically · JUMP over obstacles!',W/2,H*.34+78)}
   if(stunUntil>now){ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText('💫',PX.sx(lastD),PX.sy(lastD)-20)}
   toasts=toasts.filter(t=>now<t.until);toasts.slice(-1).forEach(t=>{ctx.font='bold 14px sans-serif';const w=ctx.measureText(t.t).width+28;ctx.fillStyle=t.c;ctx.beginPath();ctx.roundRect(W/2-w/2,y+40,w,30,15);ctx.fill();ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(t.t,W/2,y+60)});
   for(const b of badgePop){if(now<b.from||now>b.until)continue;const t=(now-b.from)/1000,sc=t<.2?t/.2*1.15:t<.3?1.15-(t-.2):1,a=t>.8?(1-t)/.2:1;ctx.globalAlpha=a;ctx.fillStyle='#0007';ctx.fillRect(0,0,W,H);
    ctx.save();ctx.translate(W/2,H*.42);ctx.scale(sc,sc);ctx.fillStyle='#fffaf0';ctx.beginPath();ctx.arc(0,0,64,0,7);ctx.fill();ctx.strokeStyle='#f0a030';ctx.lineWidth=6;ctx.stroke();ctx.font='56px sans-serif';ctx.textAlign='center';ctx.fillText(BADGES[b.k][0],0,20);ctx.restore();
-   ctx.font='bold 20px sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('배지 획득!  '+BADGES[b.k][1],W/2,H*.42+100);ctx.globalAlpha=1}
+   ctx.font='bold 20px sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText('Badge earned!  '+BADGES[b.k][1],W/2,H*.42+100);ctx.globalAlpha=1}
   ctx.textAlign='left'};
  // 인증카드 추가 정보 (도전 모드만)
  G.card=x=>{const r=result;if(!r)return;x.fillStyle='#ffffffe8';x.beginPath();x.roundRect(90,690,900,290,40);x.fill();x.textAlign='center';x.fillStyle='#333';
-  x.font='bold 30px sans-serif';x.fillText('도전 모드 기록',540,745);x.font='bold 72px sans-serif';x.fillText(fmt(r.ms),340,840);x.fillStyle='#f0602a';x.fillText('★ '+r.score,740,840);
-  x.fillStyle='#777';x.font='28px sans-serif';x.fillText(r.isPB?'🎉 개인 최고기록!':'최고기록 '+fmt(r.pb),340,885);x.fillText('피함 '+r.dodged+' · 부딪힘 '+r.hits,740,885);
+  x.font='bold 30px sans-serif';x.fillText('Challenge Result',540,745);x.font='bold 72px sans-serif';x.fillText(fmt(r.ms),340,840);x.fillStyle='#f0602a';x.fillText('★ '+r.score,740,840);
+  x.fillStyle='#777';x.font='28px sans-serif';x.fillText(r.isPB?'🎉 New personal best!':'Best '+fmt(r.pb),340,885);x.fillText('Dodged '+r.dodged+' · Hits '+r.hits,740,885);
   x.font='40px sans-serif';const all=r.all;all.forEach((k,i)=>x.fillText(BADGES[k][0],540+(i-(all.length-1)/2)*70,950))};
- G.rankHTML=list=>'<b>오늘의 순위 (북한산)</b>'+list.map((r,i)=>`<div>${i+1}. ${r.name.replace(/[<>&]/g,'')} <span>${fmt(r.ms)} · ★${r.score}</span></div>`).join('');
+ G.rankHTML=list=>'<b>Today\'s Top 10 · Bukhansan</b>'+list.map((r,i)=>`<div>${i+1}. ${r.name.replace(/[<>&]/g,'')} <span>${fmt(r.ms)} · ★${r.score}</span></div>`).join('');
  return G})();

@@ -109,5 +109,5 @@ const BK=(()=>{
   x.fillStyle='#555';x.fillRect(556,440,8,125);x.save();x.translate(564,440);x.scale(4,4);const c2=ctx;ctx=x;flag(0,0,0);ctx=c2;x.restore();
   // 기념 아이콘: 북한산성 성문(작게, 오른쪽 위)
   x.save();x.translate(930,470);x.fillStyle='#ffffffd8';x.beginPath();x.arc(0,0,60,0,7);x.fill();x.fillStyle='#8c8577';x.fillRect(-38,-6,76,34);x.fillStyle='#ffffffd8';x.beginPath();x.arc(0,28,14,Math.PI,0);x.fill();x.fillRect(-14,28,28,2);
-  x.fillStyle='#4e5f57';x.beginPath();x.moveTo(-44,-6);x.quadraticCurveTo(0,-14,44,-6);x.lineTo(30,-26);x.lineTo(-30,-26);x.fill();x.fillStyle='#555';x.font='bold 20px sans-serif';x.textAlign='center';x.fillText('북한산성',0,50);x.restore()}
+  x.fillStyle='#4e5f57';x.beginPath();x.moveTo(-44,-6);x.quadraticCurveTo(0,-14,44,-6);x.lineTo(30,-26);x.lineTo(-30,-26);x.fill();x.fillStyle='#555';x.font='bold 20px sans-serif';x.textAlign='center';x.fillText('Bukhansanseong Fortress',0,50);x.restore()}
  return{alt,spot,draw,card,P,L,gx,gy,zoneOf};})();

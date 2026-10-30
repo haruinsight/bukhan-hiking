@@ -46,7 +46,7 @@ const PX=(()=>{
   const fade=1-Math.max(0,Math.min(1,(camX-1600)/300))*.6;ctx.save();ctx.globalAlpha=fade;
   // 뒤 능선(숲)
   ctx.fillStyle=lg(0,base-40*hm,0,base,['#8fa79a','#7e978a']);P();ctx.moveTo(0,H);for(let x=0;x<=W;x+=8)ctx.lineTo(x,base-12*hm-Math.sin((x+p*.7)*.008)*14*hm-Math.sin((x+p*.7)*.03)*4*hm);ctx.lineTo(W,H);ctx.fill();
-  const pw=HS*Math.max(1.25,hm/HS*1.15);const q=W*.55+60*HS;const pk=[[q-p,62*pw,98*hm,11,'#c9c7c0','인수봉'],[q+170*pw-p,64*pw,112*hm,23,'#c4c1b9','백운대'],[q+300*pw-p,58*pw,84*hm,37,'#bdbab3','만경대'],[q-220*pw-p,56*pw,58*hm,51,'#b8b8b2','노적봉']];
+  const pw=HS*Math.max(1.25,hm/HS*1.15);const q=W*.55+60*HS;const pk=[[q-p,62*pw,98*hm,11,'#c9c7c0','Insubong'],[q+170*pw-p,64*pw,112*hm,23,'#c4c1b9','Baegundae'],[q+300*pw-p,58*pw,84*hm,37,'#bdbab3','Mangyeongdae'],[q-220*pw-p,56*pw,58*hm,51,'#b8b8b2','Nojeokbong']];
   for(const[c,w,h,s,col]of [pk[3],pk[2],pk[0],pk[1]])if(c>-w&&c<W+w)granite(c,base,w,h,s,col);
   ctx.font=`600 ${Math.round(10*Math.min(1.3,HS))}px sans-serif`;ctx.textAlign='center';for(const[c,,h,,,nm]of pk.slice(0,3))if(c>-20&&c<W+20){ctx.fillStyle='rgba(30,40,50,.55)';ctx.fillText(nm,c,base-h-6)}
   // 북한산성 성곽
@@ -184,7 +184,7 @@ const PX=(()=>{
    if(GAME.on){air=GAME.airY(now);pose=GAME.stunned()?'hurt':air>0?'jump':GAME.moving()?'walk':'idle';if(pose==='walk'&&!GAME.stunned())walkPh+=.0;}
    else{const r=RH.anim(now);air=r.y*1.4*HS;ry=air;pose=r.pose[0]==='h'?'hop':r.pose==='idle'?'idle':'walk'}
    myPose=pose;hiker(x,y-air,HS*1.08,{...ME,air},pose,walkPh,now);
-   ctx.font=`bold ${Math.round(11*Math.min(1.3,HS))}px sans-serif`;pill('나 · '+m.name,x,y-air-58*HS,'#e8642a')}
+   ctx.font=`bold ${Math.round(11*Math.min(1.3,HS))}px sans-serif`;pill('Me · '+m.name,x,y-air-58*HS,'#e8642a')}
   ctx.font='11px sans-serif';for(const[x,y,t]of labels)pill(t,x,y,'rgba(0,0,0,.5)');
   ctx.font='600 12px sans-serif';pill(BK.spot(dS)+'  ·  '+zone(dS).label,W/2,topY()+22,'rgba(0,0,0,.42)');
   if(!GAME.on)RH.hud(now);ctx.textAlign='left'}

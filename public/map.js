@@ -1,24 +1,24 @@
 // 첫 화면(대한민국 지도) + 보상 "한국의 밥상"
-window.STOP_EN={'백운대탐방지원센터':'Trailhead Visitor Center','도선사 갈림길':'Doseonsa Temple Junction','하루재':'Harujae Pass','인수암':'Insuam Hermitage','백운대피소':'Baegun Shelter','위문(백운봉암문)':'Wimun Fortress Gate','백운대':'Baegundae Peak 836m'};
+window.STOP_EN={'Trailhead Center':'백운대탐방지원센터','Doseonsa Junction':'도선사 갈림길','Harujae Pass':'하루재','Insuam Hermitage':'인수암','Baegun Shelter':'백운대피소','Wimun Gate':'위문','Baegundae 836m':'백운대'};
 function uiOpen(){return [...document.querySelectorAll('.modal,.scr')].some(e=>!e.classList.contains('hide'))}
 let LAST=null;
 const DISH=[
  // tier 0
  {id:'kimchi',t:0,ko:'배추김치',en:'Kimchi',v:'plate',d:'Spicy fermented napa cabbage — the side dish on every Korean table, eaten with almost every bite of rice.'},
- {id:'kongnamul',t:0,ko:'콩나물무침',en:'Soybean Sprouts',v:'plate',d:'Crunchy sprouts tossed with sesame oil, garlic and scallion. Light, nutty, refreshing.'},
- {id:'myeolchi',t:0,ko:'멸치볶음',en:'Stir-fried Anchovies',v:'plate',d:'Tiny anchovies glazed sweet-salty with sesame — a crunchy lunchbox favorite.'},
- {id:'miyeokguk',t:0,ko:'미역국',en:'Seaweed Soup',v:'brass',d:'Silky seaweed soup in a savory broth. Koreans eat it on their birthday.'},
+ {id:'kongnamul',t:0,ko:'콩나물무침',en:'Kongnamul (Soybean Sprouts)',v:'plate',d:'Crunchy sprouts tossed with sesame oil, garlic and scallion. Light, nutty, refreshing.'},
+ {id:'myeolchi',t:0,ko:'멸치볶음',en:'Myeolchi-bokkeum (Anchovies)',v:'plate',d:'Tiny anchovies glazed sweet-salty with sesame — a crunchy lunchbox favorite.'},
+ {id:'miyeokguk',t:0,ko:'미역국',en:'Miyeok-guk (Seaweed Soup)',v:'brass',d:'Silky seaweed soup in a savory broth. Koreans eat it on their birthday.'},
  // tier 1
- {id:'gyeran',t:1,ko:'계란말이',en:'Rolled Omelet',v:'plate',d:'Fluffy layered egg roll with veggies — soft, mild, loved by kids and adults.'},
+ {id:'gyeran',t:1,ko:'계란말이',en:'Gyeran-mari',v:'plate',d:'Fluffy layered egg roll with veggies — soft, mild, loved by kids and adults.'},
  {id:'japchae',t:1,ko:'잡채',en:'Japchae',v:'plate',d:'Chewy glass noodles stir-fried with soy, sesame and colorful vegetables. A party classic.'},
- {id:'doenjang',t:1,ko:'된장찌개',en:'Soybean Paste Stew',v:'pot',d:'Bubbling stew of fermented soybean paste, tofu and zucchini. Spoon it right onto rice.'},
- {id:'jeyuk',t:1,ko:'제육볶음',en:'Spicy Stir-fried Pork',v:'plate',d:'Pork in fiery gochujang sauce. Wrap it in lettuce with rice for the perfect bite.'},
+ {id:'doenjang',t:1,ko:'된장찌개',en:'Doenjang-jjigae',v:'pot',d:'Bubbling stew of fermented soybean paste, tofu and zucchini. Spoon it right onto rice.'},
+ {id:'jeyuk',t:1,ko:'제육볶음',en:'Jeyuk-bokkeum (Spicy Pork)',v:'plate',d:'Pork in fiery gochujang sauce. Wrap it in lettuce with rice for the perfect bite.'},
  // tier 2
- {id:'galbijjim',t:2,ko:'갈비찜',en:'Braised Short Ribs',v:'brass',d:'Tender beef ribs slow-braised in sweet soy with chestnuts and jujubes — a holiday feast dish.'},
+ {id:'galbijjim',t:2,ko:'갈비찜',en:'Galbi-jjim',v:'brass',d:'Tender beef ribs slow-braised in sweet soy with chestnuts and jujubes — a holiday feast dish.'},
  {id:'bulgogi',t:2,ko:'불고기',en:'Bulgogi',v:'plate',d:'Thin marinated beef grilled sweet and smoky. Korea\'s most famous BBQ.'},
- {id:'gejang',t:2,ko:'간장게장',en:'Soy-marinated Crab',v:'oval',d:'Raw crab cured in soy sauce, called the "rice thief" — mix the rich roe into rice in the shell.'},
- {id:'samgyetang',t:2,ko:'삼계탕',en:'Ginseng Chicken Soup',v:'pot',d:'A whole young chicken stuffed with rice, ginseng and jujube. Koreans eat it on the hottest summer days.'}];
-const TIER=[{need:0,ko:'기본 반찬',en:'Everyday'},{need:700,ko:'특별 반찬',en:'Special'},{need:1200,ko:'잔칫상 요리',en:'Feast'}];
+ {id:'gejang',t:2,ko:'간장게장',en:'Ganjang-gejang (Soy Crab)',v:'oval',d:'Raw crab cured in soy sauce, called the "rice thief" — mix the rich roe into rice in the shell.'},
+ {id:'samgyetang',t:2,ko:'삼계탕',en:'Samgyetang',v:'pot',d:'A whole young chicken stuffed with rice, ginseng and jujube. Koreans eat it on the hottest summer days.'}];
+const TIER=[{need:0,ko:'기본 반찬',en:'Everyday Banchan'},{need:700,ko:'특별 반찬',en:'Special Dishes'},{need:1200,ko:'잔칫상',en:'Feast Dishes'}];
 const MAP=(()=>{
  const M={};const $=id=>document.getElementById(id);
  const col=()=>{try{return JSON.parse(localStorage.bapsang||'{}')}catch(e){return{}}};
@@ -43,14 +43,14 @@ const MAP=(()=>{
   <path d="M${X(128.1)},${Y(36.5)} C${X(127.7)},${Y(35.9)} ${X(127.5)},${Y(35.5)} ${X(127.7)},${Y(35.2)}" fill="none" stroke="#a9c193" stroke-width="10" stroke-linecap="round" opacity=".45"/>
   <path d="M${X(126.62)},${Y(37.6)} C${X(126.8)},${Y(37.57)} ${X(126.95)},${Y(37.51)} ${X(127.1)},${Y(37.55)} S${X(127.35)},${Y(37.55)} ${X(127.5)},${Y(37.6)}" fill="none" stroke="#8fc3d6" stroke-width="2.5" stroke-linecap="round"/>
   <path d="M${X(128.8)},${Y(35.1)} C${X(128.6)},${Y(35.5)} ${X(128.5)},${Y(35.9)} ${X(128.6)},${Y(36.4)}" fill="none" stroke="#8fc3d6" stroke-width="2" stroke-linecap="round"/>
-  <text x="${X(125.0)}" y="${Y(35.6)}" class="sea">서해 · Yellow Sea</text><text x="${X(130.0)}" y="${Y(36.4)}" class="sea">동해 · East Sea</text><text x="${X(127.7)}" y="${Y(33.85)}" class="sea">남해</text>
-  ${city(127.06,37.25,'수원','Suwon')}${city(127.38,36.35,'대전','Daejeon')}${city(128.6,35.87,'대구','Daegu')}${city(129.07,35.18,'부산','Busan',-50)}${city(126.85,35.16,'광주','Gwangju')}${city(128.9,37.75,'강릉','Gangneung')}${city(129.2,35.84,'경주','Gyeongju')}
-  <text x="${X(126.55)}" y="${Y(33.38)+5}" class="ct" text-anchor="middle">제주 <tspan class="en">Jeju</tspan></text>
-  <text x="${X(130.87)}" y="${Y(37.5)-10}" class="ct sm" text-anchor="middle">울릉도</text><text x="${X(131.87)}" y="${Y(37.24)+16}" class="ct sm" text-anchor="middle">독도 Dokdo</text>
-  <circle cx="${X(126.98)}" cy="${Y(37.56)}" r="5" fill="#d0574a" stroke="#fff" stroke-width="1.5"/><text x="${X(126.98)-10}" y="${Y(37.56)+18}" class="ct b" text-anchor="end">서울 <tspan class="en">Seoul</tspan></text>
+  <text x="${X(125.0)}" y="${Y(35.6)}" class="sea">Yellow Sea · 서해</text><text x="${X(130.0)}" y="${Y(36.4)}" class="sea">East Sea · 동해</text><text x="${X(127.7)}" y="${Y(33.85)}" class="sea">South Sea</text>
+  ${city(127.06,37.25,'Suwon','수원')}${city(127.38,36.35,'Daejeon','대전')}${city(128.6,35.87,'Daegu','대구')}${city(129.07,35.18,'Busan','부산',-62)}${city(126.85,35.16,'Gwangju','광주')}${city(128.9,37.75,'Gangneung','강릉')}${city(129.2,35.84,'Gyeongju','경주')}
+  <text x="${X(126.55)}" y="${Y(33.38)+5}" class="ct" text-anchor="middle">Jeju <tspan class="en">제주</tspan></text>
+  <text x="${X(130.87)}" y="${Y(37.5)-10}" class="ct sm" text-anchor="middle">Ulleungdo</text><text x="${X(131.87)}" y="${Y(37.24)+16}" class="ct sm" text-anchor="middle">Dokdo 독도</text>
+  <circle cx="${X(126.98)}" cy="${Y(37.56)}" r="5" fill="#d0574a" stroke="#fff" stroke-width="1.5"/><text x="${X(126.98)-10}" y="${Y(37.56)+18}" class="ct b" text-anchor="end">Seoul <tspan class="en">서울</tspan></text>
   <g id="bkPin" style="cursor:pointer"><circle cx="${bx}" cy="${by}" r="16" fill="#2f8f5b" opacity=".25"><animate attributeName="r" values="10;26;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;0;.45" dur="2s" repeatCount="indefinite"/></circle>
    <path d="M${bx},${by} c-4,-10 -14,-16 -14,-27 a14,14 0 1,1 28,0 c0,11 -10,17 -14,27z" fill="#2f8f5b" stroke="#fff" stroke-width="2.5"/><path d="M${bx-7},${by-23} l7,-9 l3,4 l2,-2 l4,7z" fill="#fff"/>
-   <g transform="translate(${bx+18},${by-70})"><rect width="168" height="50" rx="12" fill="#fff" filter="url(#sh)"/><text x="12" y="21" class="pk">⛰️ 북한산 백운대</text><text x="12" y="39" class="ct en">Bukhansan · 836m · Tap to hike!</text></g>
+   <g transform="translate(${bx+18},${by-70})"><rect width="168" height="50" rx="12" fill="#fff" filter="url(#sh)"/><text x="12" y="21" class="pk">⛰️ Bukhansan 북한산</text><text x="12" y="39" class="ct en">Baegundae 836m · Tap to hike!</text></g>
    <rect x="${bx-20}" y="${by-75}" width="210" height="80" fill="transparent"/></g></svg>`}
  // ── 반찬 그리기(위에서 본 모습) ──
  function rng(s){return()=>{s=(s*16807)%2147483647;return s/2147483647}}
@@ -99,21 +99,21 @@ const MAP=(()=>{
    if(c[d.id]){if(hi===d.id){x.save();x.fillStyle='#ffe08a55';x.beginPath();x.arc(cx,cy,r*1.3,0,7);x.fill();x.restore()}drawDish(x,cx,cy,r,d);if(c[d.id]>1){x.fillStyle='#000a';x.beginPath();x.roundRect(cx+r*.45,cy-r*1.05,r*.7,r*.42,r*.2);x.fill();x.fillStyle='#fff';x.font=`bold ${r*.3}px sans-serif`;x.textAlign='center';x.fillText('×'+c[d.id],cx+r*.8,cy-r*.75)}}
    else{x.strokeStyle='#ffffff30';x.setLineDash([6,6]);x.lineWidth=2;x.beginPath();x.arc(cx,cy,r*.8,0,7);x.stroke();x.setLineDash([])}});
   const by=pad+th*.84,br=Math.min(th*.13,w*.09);rice(x,w*.36,by,br);cutlery(x,w*.6,by,br*1.2);
-  x.fillStyle='#fff';x.font=`bold ${Math.max(12,w*.03)}px sans-serif`;x.textAlign='left';x.fillText(`🍚 밥·수저는 기본  ·  반찬 ${have.length}/12`,pad+w*.04,h-pad-w*.03);x.textAlign='left'}
+  x.fillStyle='#fff';x.font=`bold ${Math.max(12,w*.03)}px sans-serif`;x.textAlign='left';x.fillText(`🍚 Rice, spoon & chopsticks included  ·  Dishes ${have.length}/12`,pad+w*.04,h-pad-w*.03);x.textAlign='left'}
  function thumb(d,lock,size=120){const c=document.createElement('canvas');c.width=c.height=size*2;const x=c.getContext('2d');x.scale(2,2);drawDish(x,size/2,size/2,size*.4,d,lock);return c}
  // ── 화면 ──
- M.show=()=>{for(const id of['card','pick','reward'])$(id).classList.add('hide');$('map').classList.remove('hide');const n=DISH.filter(d=>col()[d.id]).length;$('mapCount').textContent=n?`나의 밥상 반찬 ${n}/12`:'아직 반찬이 없어요'};
+ M.show=()=>{for(const id of['card','pick','reward'])$(id).classList.add('hide');$('map').classList.remove('hide');const n=DISH.filter(d=>col()[d.id]).length;$('mapCount').textContent=n?`${n}/12 dishes collected`:'No dishes yet'};
  M.cardInfo=()=>{if(!LAST)return;const s=LAST.score,t=s>=TIER[2].need?2:s>=TIER[1].need?1:0,det=LAST.det;
-  $('scoreLine').innerHTML=`<div class="sc"><b>${s.toLocaleString()}점</b> <span>${LAST.mode==='walk'?`PERFECT ${det.nP} · GOOD ${det.nG} · MISS ${det.nM} · 시간보너스 ${det.tb}`:`회피 ${det.dodged} · 부딪힘 ${det.hits} · 시간보너스 ${det.tb}${det.nb?' · 무사고 +300':''}`}</span></div><div class="tierHint">🎁 ${TIER[t].ko} 등급 보상!${t<2?` 다음 등급까지 ${TIER[t+1].need-s}점`:''}</div>`};
- function reward(){const s=LAST?LAST.score:0,t=s>=TIER[2].need?2:s>=TIER[1].need?1:0;$('card').classList.add('hide');$('reward').classList.remove('hide');$('rwTitle').innerHTML=`${s.toLocaleString()}점 · 반찬 하나를 골라 밥상에 올리세요<br><small>Pick one dish for your Korean table</small>`;
+  $('scoreLine').innerHTML=`<div class="sc"><b>${s.toLocaleString()} pts</b> <span>${LAST.mode==='walk'?`PERFECT ${det.nP} · GOOD ${det.nG} · MISS ${det.nM} · Time bonus ${det.tb}`:`Dodged ${det.dodged} · Hits ${det.hits} · Time bonus ${det.tb}${det.nb?' · No-hit +300':''}`}</span></div><div class="tierHint">🎁 ${TIER[t].en} reward unlocked!${t<2?` ${TIER[t+1].need-s} more pts for ${TIER[t+1].en}`:''}</div>`};
+ function reward(){const s=LAST?LAST.score:0,t=s>=TIER[2].need?2:s>=TIER[1].need?1:0;$('card').classList.add('hide');$('reward').classList.remove('hide');$('rwTitle').innerHTML=`${s.toLocaleString()} pts · Pick ONE dish for your Korean table<br><small>한국의 밥상 — higher scores unlock tastier dishes</small>`;
   const L=$('rwList');L.innerHTML='';let pick=null;$('rwOk').disabled=true;
-  TIER.forEach((T,ti)=>{const sec=document.createElement('div');sec.className='tier'+(ti>t?' locked':'');sec.innerHTML=`<h3>${['🥢','✨','👑'][ti]} ${T.ko} <small>${T.en}${ti?` · ${T.need}점 이상`:''}</small></h3>${ti>t?`<div class="lockMsg">🔒 점수 ${T.need} 이상이면 ${DISH.filter(d=>d.t===ti).map(d=>d.ko).slice(0,2).join('·')}!</div>`:''}`;
-   const g=document.createElement('div');g.className='dg';for(const d of DISH.filter(d=>d.t===ti)){const b=document.createElement('button');b.className='dc';b.appendChild(thumb(d,ti>t));b.insertAdjacentHTML('beforeend',`<b>${d.ko}</b><i>${d.en}</i><p>${d.d}</p>${col()[d.id]?`<em>보유 ×${col()[d.id]}</em>`:''}`);
-    if(ti<=t)b.onclick=()=>{pick=d;[...L.querySelectorAll('.dc')].forEach(e=>e.classList.remove('on'));b.classList.add('on');$('rwOk').disabled=false;$('rwOk').textContent=d.ko+' 받기'};else b.disabled=true;g.appendChild(b)}
+  TIER.forEach((T,ti)=>{const sec=document.createElement('div');sec.className='tier'+(ti>t?' locked':'');sec.innerHTML=`<h3>${['🥢','✨','👑'][ti]} ${T.en}${ti?` (${T.need}+)`:''} <small>${T.ko}</small></h3>${ti>t?`<div class="lockMsg">🔒 Score ${T.need}+ to unlock ${DISH.filter(d=>d.t===ti).map(d=>d.en).slice(0,2).join(' & ')}!</div>`:''}`;
+   const g=document.createElement('div');g.className='dg';for(const d of DISH.filter(d=>d.t===ti)){const b=document.createElement('button');b.className='dc';b.appendChild(thumb(d,ti>t));b.insertAdjacentHTML('beforeend',`<b>${d.en}</b><i>${d.ko}</i><p>${d.d}</p>${col()[d.id]?`<em>Owned ×${col()[d.id]}</em>`:''}`);
+    if(ti<=t)b.onclick=()=>{pick=d;[...L.querySelectorAll('.dc')].forEach(e=>e.classList.remove('on'));b.classList.add('on');$('rwOk').disabled=false;$('rwOk').textContent='Get '+d.en};else b.disabled=true;g.appendChild(b)}
    sec.appendChild(g);L.appendChild(sec)});
   $('rwOk').onclick=()=>{if(!pick)return;const c=col();c[pick.id]=(c[pick.id]||0)+1;localStorage.bapsang=JSON.stringify(c);LAST=null;showTable(pick)}}
  function showTable(hi){for(const id of['reward','map','card'])$(id).classList.add('hide');$('tbl').classList.remove('hide');const cv=$('tblCv'),w=Math.min(innerWidth-24,760),hh=Math.min(innerHeight-170,w*.95);cv.style.width=w+'px';cv.style.height=hh+'px';cv.width=w*2;cv.height=hh*2;table(cv,hi&&hi.id);
-  $('tblMsg').innerHTML=hi?`<b>${hi.ko}</b> (${hi.en})을(를) 밥상에 올렸어요! <small>${hi.d}</small>`:'모은 반찬이 밥상에 차려져요. 점수가 높을수록 귀한 요리!'}
+  $('tblMsg').innerHTML=hi?`<b>${hi.en}</b> ${hi.ko} is now on your table! <small>${hi.d}</small>`:'Your collected dishes are served here. Higher scores unlock rarer dishes!'}
  M.table=showTable;M.reward=reward;M.DISH=DISH;
  addEventListener('DOMContentLoaded',()=>{});
  M.init=()=>{$('mapSvg').innerHTML=svg();$('bkPin').onclick=()=>{$('map').classList.add('hide');$('pick').classList.remove('hide')};$('mapTable').onclick=()=>showTable(null);$('tblBack').onclick=()=>{$('tbl').classList.add('hide');M.show()};$('toReward').onclick=reward;$('pickBack').onclick=()=>M.show();M.show()};

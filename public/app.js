@@ -1,11 +1,11 @@
-const MTS={bukhan:{name:'북한산',h:836},halla:{name:'한라산',h:1947},jiri:{name:'지리산',h:1915},seorak:{name:'설악산',h:1708},deogyu:{name:'덕유산',h:1614}};
+const MTS={bukhan:{name:'Bukhansan',h:836},halla:{name:'Hallasan',h:1947},jiri:{name:'Jirisan',h:1915},seorak:{name:'Seoraksan',h:1708},deogyu:{name:'Deogyusan',h:1614}};
 let ctx;const $=id=>document.getElementById(id),cv=$('cv');ctx=cv.getContext('2d');
 let W,H,DPR,ws,me=null,mt='halla',mount=null,players=[],room=1,cam=0,camT=0,walk={},lastH={},today=0,clouds=[];
 const COL=['#e8553b','#3a7bd5','#f2b632','#8e5bd6','#2aa876','#ff7aa8'];
 for(let i=0;i<6;i++)clouds.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
 // 산 선택
 mt='bukhan';$('nick').value=localStorage.nick||'';
-$('mts').innerHTML=Object.entries(MTS).sort((x,y)=>(y[0]==='bukhan')-(x[0]==='bukhan')).map(([k,v])=>`<button data-k="${k}">${v.name}<small>${k==='bukhan'?'백운대 코스 1.9km':v.h.toLocaleString()+'m'}</small></button>`).join('');
+$('mts').innerHTML=Object.entries(MTS).sort((x,y)=>(y[0]==='bukhan')-(x[0]==='bukhan')).map(([k,v])=>`<button data-k="${k}">${v.name}<small>${k==='bukhan'?'Baegundae trail 1.9km':v.h.toLocaleString()+'m'}</small></button>`).join('');
 const mark=()=>[...$('mts').children].forEach(b=>b.classList.toggle('on',b.dataset.k===mt));mark();
 $('mts').onclick=e=>{const b=e.target.closest('button');if(b){mt=b.dataset.k;mark()}};
 $('modes').onclick=e=>{const b=e.target.closest('button');if(!b)return;GAME.mode=b.dataset.m;localStorage.mode=GAME.mode;markM()};const markM=()=>[...$('modes').children].forEach(b=>b.classList.toggle('on',b.dataset.m===GAME.mode));markM();
@@ -15,10 +15,10 @@ function connect(){if(ws&&ws.readyState===1)return join();ws=new WebSocket((loca
 function join(){RH.reset();today=+(localStorage['t_'+mt+'_'+dayKey()]||0);GAME.start();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value,mode:GAME.on?'challenge':'walk'}))}
 const dayKey=()=>new Date().toLocaleDateString('sv');
 function onMsg(e){const d=JSON.parse(e.data);
- if(d.t==='hello'){me=d.id;mount=d.mount;room=d.room;$('mtName').textContent='⛰️ '+mount.name;$('goal').textContent='정상 '+mount.h.toLocaleString()+'m'}
+ if(d.t==='hello'){me=d.id;mount=d.mount;room=d.room;$('mtName').textContent='⛰️ '+mount.name;$('goal').textContent='Summit '+mount.h.toLocaleString()+'m'}
  if(d.t==='state'){players=d.players;for(const p of players){if(lastH[p.id]!==undefined&&p.h>lastH[p.id])walk[p.id]=performance.now();lastH[p.id]=p.h}
   {const mm=players.find(p=>p.id===me);if(mm&&GAME.on)GAME.onMove(mm.h)}
-  const m=players.find(p=>p.id===me);$('who').textContent=`${room}번 방 · 함께 ${players.length}/100명`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
+  const m=players.find(p=>p.id===me);$('who').textContent=`Room ${room} · ${players.length}/100 hikers`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
  if(d.t==='summit'){const rs=GAME.on?null:RH.score(d.ms);RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms),r=GAME.result();LAST={mode:'challenge',ms:d.ms,score:r.final,det:r};setTimeout(showCard,w)}else{LAST={mode:'walk',ms:d.ms,score:rs.score,det:rs};showCard()}}
  if(d.t==='rank'&&GAME.on){$('rank').innerHTML=GAME.rankHTML(d.list);$('rank').classList.remove('hide')}}
 const step=()=>{if(ws&&ws.readyState===1&&me&&$('card').classList.contains('hide')){if(GAME.on&&!GAME.tryStep())return;ws.send('{"t":"step"}')}};
@@ -54,7 +54,7 @@ function draw(now){requestAnimationFrame(draw);if(mount&&mount.course){PX.draw(n
  if(mount)for(let h=500;h<mount.h;h+=500){const p=trail(h/mount.h);const y=sy(p.y);if(y<0||y>H)continue;ctx.fillStyle='#6b4a2b';ctx.fillRect(p.x+16,y-22,4,22);ctx.fillStyle='#fff';ctx.fillRect(p.x+8,y-36,44,16);ctx.fillStyle='#333';ctx.font='bold 11px sans-serif';ctx.fillText(h+'m',p.x+12,y-24)}
  // 정상 깃발
  const fp=trail(1),fy=sy(fp.y)-46;ctx.fillStyle='#555';ctx.fillRect(fp.x-2,fy-40,4,46);const wv=Math.sin(now/200)*4;ctx.fillStyle='#e8433b';ctx.beginPath();ctx.moveTo(fp.x+2,fy-40);ctx.quadraticCurveTo(fp.x+20,fy-36+wv,fp.x+36,fy-30);ctx.lineTo(fp.x+2,fy-20);ctx.fill();
- if(mount){ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(mount.name+' 정상',fp.x,fy-48);ctx.textAlign='left'}
+ if(mount){ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(mount.name+' summit',fp.x,fy-48);ctx.textAlign='left'}
  // 등산객 (나 마지막에)
  const placed=[];const list=[...players].sort((a,b)=>(a.id===me)-(b.id===me));
  for(const p of list){if(!mount)break;const t=p.h/mount.h,q=trail(t),off=p.id===me?0:((p.id*53)%70-35);const y=sy(q.y);if(y<-60||y>H+60)continue;hiker(q.x+off,y,p,now,placed)}
@@ -73,7 +73,7 @@ function hiker(x,y,p,now,placed){const mine=p.id===me,s=mine?1.35:.95,since=now-
  ctx.fillStyle='#222';ctx.beginPath();ctx.arc(-3.5,-37,1.6,0,7);ctx.arc(3.5,-37,1.6,0,7);ctx.fill();ctx.fillStyle='#ff9a9a';ctx.beginPath();ctx.arc(-6.5,-33.5,2,0,7);ctx.arc(6.5,-33.5,2,0,7);ctx.fill();
  ctx.fillStyle=mine?'#ffcf33':'#f1efe6';ctx.beginPath();ctx.ellipse(0,-43,14,3.5,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(0,-44,8.5,Math.PI,0);ctx.fill(); // 모자
  ctx.restore();
- const ly0=y-46*(mine?1.35:.95)-14;if(!mine&&placed.some(q=>Math.abs(q[0]-x)<70&&Math.abs(q[1]-ly0)<20))return;placed.push([x,ly0]);ctx.font=(mine?'bold 13px':'11px')+' sans-serif';ctx.textAlign='center';const label=(mine?'나 · ':'')+p.name;const tw=ctx.measureText(label).width+12,ly=y-bob-46*s-14;
+ const ly0=y-46*(mine?1.35:.95)-14;if(!mine&&placed.some(q=>Math.abs(q[0]-x)<70&&Math.abs(q[1]-ly0)<20))return;placed.push([x,ly0]);ctx.font=(mine?'bold 13px':'11px')+' sans-serif';ctx.textAlign='center';const label=(mine?'Me · ':'')+p.name;const tw=ctx.measureText(label).width+12,ly=y-bob-46*s-14;
  ctx.fillStyle=mine?'#f0602a':'#0007';ctx.beginPath();ctx.roundRect(x-tw/2,ly-14,tw,18,9);ctx.fill();ctx.fillStyle='#fff';ctx.fillText(label,x,ly);ctx.textAlign='left'}
 requestAnimationFrame(draw);
 // 인증 카드
@@ -85,18 +85,18 @@ function makeCard(){const c=document.createElement('canvas');c.width=1080;c.heig
  x.fillStyle='#3f6f3f';x.beginPath();x.moveTo(0,1350);x.lineTo(0,1100);x.lineTo(540,640);x.lineTo(1080,1100);x.lineTo(1080,1350);x.fill();
  x.fillStyle='#f4f7fb';x.beginPath();x.moveTo(540,640);x.lineTo(450,718);x.lineTo(500,705);x.lineTo(540,725);x.lineTo(585,702);x.lineTo(630,718);x.fill();
  x.fillStyle='#555';x.fillRect(537,520,6,125);x.fillStyle='#e8433b';x.beginPath();x.moveTo(543,520);x.lineTo(620,545);x.lineTo(543,575);x.fill();
- }x.fillStyle='#fff';x.textAlign='center';x.font='bold 64px sans-serif';x.fillText('정상 인증',540,150);
- const CN=mount.course?'북한산 백운대':mount.name,CH=mount.course?836:mount.h;x.font='bold '+(CN.length>4?96:120)+'px sans-serif';x.fillText(CN,540,300);x.font='bold 56px sans-serif';x.fillText(CH.toLocaleString()+'m',540,380);
+ }x.fillStyle='#fff';x.textAlign='center';x.font='bold 64px sans-serif';x.fillText('SUMMIT CERTIFIED',540,150);
+ const CN=mount.course?'Bukhansan':mount.name,CH=mount.course?836:mount.h;x.font='bold '+(CN.length>9?96:120)+'px sans-serif';x.fillText(CN,540,300);x.font='bold 56px sans-serif';x.fillText(CH.toLocaleString()+'m',540,380);
  if(GAME.on)GAME.card(x);x.textAlign='center';x.fillStyle='#fffffff0';x.beginPath();x.roundRect(90,1000,900,270,40);x.fill();x.fillStyle='#333';
  const nm=(players.find(p=>p.id===me)||{}).name||'';const d=new Date();
- x.font='bold 60px sans-serif';x.fillText(nm,540,1085);x.font='44px sans-serif';x.fillText(`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`,540,1160);
- x.fillStyle='#f0602a';x.font='bold 48px sans-serif';x.fillText(`오늘 정상 ${today}번째 🏁`,540,1235);
- x.fillStyle='#fff';x.font='32px sans-serif';x.fillText('같이 등산 ⛰️ 함께 오르는 온라인 산',540,1330);return c}
+ x.font='bold 60px sans-serif';x.fillText(nm,540,1085);x.font='44px sans-serif';x.fillText(d.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),540,1160);
+ x.fillStyle='#f0602a';x.font='bold 48px sans-serif';x.fillText(`Summit #${today} today 🏁`,540,1235);
+ x.fillStyle='#fff';x.font='32px sans-serif';x.fillText('Hike Korea ⛰️ Baegundae 836m · 백운대',540,1330);return c}
 let cardCv;
 function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');$('card').classList.remove('hide')}
-$('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'북한산백운대':mount.name}_정상인증_${dayKey()}.png`;a.click()};
-$('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`${mount.course?'북한산 백운대':mount.name} ${mount.course?836:mount.h}m 정상 찍었다! 오늘 ${today}번째 ⛰️`;
- try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('공유 문구를 복사했어요!')}}catch(e){}});
+$('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'Bukhansan_Baegundae':mount.name}_summit_${dayKey()}.png`;a.click()};
+$('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`I reached the summit of ${mount.course?'Bukhansan Baegundae':mount.name} (${mount.course?836:mount.h}m) in Seoul! ⛰️ Summit #${today} today`;
+ try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('Share text copied!')}}catch(e){}});
 $('again').onclick=()=>{$('card').classList.add('hide');if(GAME.on)GAME.again()};
 
 MAP.init();
