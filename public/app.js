@@ -93,7 +93,7 @@ function makeCard(){const c=document.createElement('canvas');c.width=1080;c.heig
  x.fillStyle='#f0602a';x.font='bold 48px sans-serif';x.fillText(`Summit #${today} today 🏁`,540,1235);
  x.fillStyle='#fff';x.font='32px sans-serif';x.fillText('Hike Korea ⛰️ Baegundae 836m · 백운대',540,1330);return c}
 let cardCv;
-function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');$('card').classList.remove('hide')}
+function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');MAP.yahoo(()=>$('card').classList.remove('hide'))}
 $('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'Bukhansan_Baegundae':mount.name}_summit_${dayKey()}.png`;a.click()};
 $('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`I reached the summit of ${mount.course?'Bukhansan Baegundae':mount.name} (${mount.course?836:mount.h}m) in Seoul! ⛰️ Summit #${today} today`;
  try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('Share text copied!')}}catch(e){}});
