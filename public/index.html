@@ -19,13 +19,21 @@ input{width:100%;padding:12px;border:2px solid #dde;border-radius:12px;font-size
 #chg{position:fixed;top:78px;left:14px;padding:6px 10px;border:0;border-radius:10px;background:#0005;color:#fff;font-size:13px}
 #rank{margin-top:10px;text-align:left;font-size:13px;background:#f4f1e8;border-radius:12px;padding:8px 12px;max-height:150px;overflow:auto}#rank div{display:flex;justify-content:space-between;padding:2px 0}#rank span{color:#777}
 .hide{display:none!important}
+#cv{image-rendering:pixelated;image-rendering:crisp-edges}
+body:not(.chal) #stepBtn{display:none}body.chal #feet{display:none}
+#feet button{position:fixed;bottom:22px;width:min(42vw,170px);height:110px;border:4px solid #1a1420;border-radius:6px;color:#fff;font-size:26px;font-weight:900;box-shadow:inset -6px -6px 0 #0004,inset 5px 5px 0 #fff5,0 6px 0 #1a1420;touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+#feet b{font-size:22px}#feet small{font-size:11px;opacity:.8;font-weight:600}
+#lf{left:14px;background:#3a8ae8}#rf{right:14px;background:#f07a28}#feet button>*{pointer-events:none}
+#feet button.dn,#feet button:active{transform:translateY(5px);box-shadow:inset -6px -6px 0 #0004,inset 5px 5px 0 #fff5,0 1px 0 #1a1420}
+#stepBtn{border:4px solid #1a1420!important;border-radius:8px!important}
+@media (orientation:landscape) and (max-height:520px){#top{padding:6px 12px}#top b{font-size:15px}#top .s{font-size:11px}#alt b{font-size:17px}#bar{top:48px;height:5px}#chg{top:58px;padding:4px 8px;font-size:12px}#feet button{height:96px;width:140px;bottom:14px}}
 </style></head><body>
 <canvas id="cv"></canvas>
 <div id="top"><div><b id="mtName">⛰️ 같이 등산</b><div class="s" id="who">산을 골라 주세요</div></div><div id="alt"><b id="myH">0m</b><div class="s" id="goal"></div></div></div>
 <div id="bar"><i id="barI"></i></div>
 <button id="chg">🗺️ 산 바꾸기</button><!-- 3D 버튼 숨김(3d.html 파일은 유지) -->
-<button id="stepBtn">👣 한 걸음</button>
+<div id="feet"><button id="lf">🦶<b>왼발</b><small>← / A</small></button><button id="rf">🦶<b>오른발</b><small>→ / D</small></button></div><button id="stepBtn">👣 한 걸음</button>
 <div class="modal" id="pick"><div class="box"><h1>⛰️ 같이 등산</h1><p>버튼을 누를 때마다 한 걸음! 전국 사람들과 함께 정상까지 올라가요.</p>
 <div class="mts" id="mts"></div><div class="mts" id="modes"><button data-m="walk">🚶 산책 모드<small>기본 · 편하게</small></button><button data-m="challenge">🏁 도전 모드<small>점프로 장애물 피하기 (북한산)</small></button></div><input id="nick" maxlength="10" placeholder="닉네임 (선택)"><button class="go" id="go">출발하기</button></div></div>
 <div class="modal hide" id="card"><div class="box"><h1>🎉 정상 도착!</h1><img id="cardImg" alt="인증 카드"><div class="row"><button id="save" style="background:#2f8f5b;color:#fff">PNG 저장</button><button id="share" style="background:#3a6fd8;color:#fff">공유하기</button></div><div id="rank" class="hide"></div><div class="row"><button id="again" style="background:#eee">다시 오르기</button></div></div></div>
-<script src="mountains.js"></script><script src="bukhan.js"></script><script src="game.js"></script><script src="app.js"></script></body></html>
+<script src="mountains.js"></script><script src="bukhan.js"></script><script src="game.js"></script><script src="px.js"></script><script src="app.js"></script></body></html>

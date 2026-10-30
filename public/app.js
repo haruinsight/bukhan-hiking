@@ -12,17 +12,19 @@ $('modes').onclick=e=>{const b=e.target.closest('button');if(!b)return;GAME.mode
 $('go').onclick=()=>{localStorage.mt=mt;localStorage.nick=$('nick').value;$('pick').classList.add('hide');connect()};
 $('chg').onclick=()=>$('pick').classList.remove('hide');
 function connect(){if(ws&&ws.readyState===1)return join();ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);ws.onopen=join;ws.onmessage=onMsg;ws.onclose=()=>setTimeout(connect,1500)}
-function join(){today=+(localStorage['t_'+mt+'_'+dayKey()]||0);GAME.start();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value,mode:GAME.on?'challenge':'walk'}))}
+function join(){RH.reset();today=+(localStorage['t_'+mt+'_'+dayKey()]||0);GAME.start();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value,mode:GAME.on?'challenge':'walk'}))}
 const dayKey=()=>new Date().toLocaleDateString('sv');
 function onMsg(e){const d=JSON.parse(e.data);
  if(d.t==='hello'){me=d.id;mount=d.mount;room=d.room;$('mtName').textContent='⛰️ '+mount.name;$('goal').textContent='정상 '+mount.h.toLocaleString()+'m'}
  if(d.t==='state'){players=d.players;for(const p of players){if(lastH[p.id]!==undefined&&p.h>lastH[p.id])walk[p.id]=performance.now();lastH[p.id]=p.h}
   {const mm=players.find(p=>p.id===me);if(mm&&GAME.on)GAME.onMove(mm.h)}
   const m=players.find(p=>p.id===me);$('who').textContent=`${room}번 방 · 함께 ${players.length}/100명`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
- if(d.t==='summit'){today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms);setTimeout(showCard,w)}else showCard()}
+ if(d.t==='summit'){RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms);setTimeout(showCard,w)}else showCard()}
  if(d.t==='rank'&&GAME.on){$('rank').innerHTML=GAME.rankHTML(d.list);$('rank').classList.remove('hide')}}
 const step=()=>{if(ws&&ws.readyState===1&&me&&$('card').classList.contains('hide')){if(GAME.on&&!GAME.tryStep())return;ws.send('{"t":"step"}')}};
-$('stepBtn').onclick=step;onkeydown=e=>{if(e.code==='Space'||(GAME.on&&e.code==='ArrowUp')){e.preventDefault();step()}};cv.addEventListener('pointerdown',()=>{if(GAME.on&&$('card').classList.contains('hide'))GAME.jump()});
+$('stepBtn').onclick=step;onkeydown=e=>{if(e.repeat)return;if(GAME.on){if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();step()}return}if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();RH.press('L');ft('lf')}if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();RH.press('R');ft('rf')}};
+const ft=id=>{const b=$(id);b.classList.add('dn');setTimeout(()=>b.classList.remove('dn'),90)};
+for(const[id,f]of[['lf','L'],['rf','R']])$(id).addEventListener('pointerdown',e=>{e.preventDefault();RH.press(f);ft(id)});cv.addEventListener('pointerdown',()=>{if(GAME.on&&$('card').classList.contains('hide'))GAME.jump()});
 // 화면
 function resize(){DPR=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener('resize',resize);resize();
 const WORLD=()=>H*2.2; // 산 전체 높이(px)
@@ -30,7 +32,7 @@ const WORLD=()=>H*2.2; // 산 전체 높이(px)
 function trail(t){const y=t*WORLD();const x=W*(.5+.3*Math.sin(t*Math.PI*7)*(1-t*.85));return{x,y}}
 function ridge(seed,amp,base,col,par){ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,H);for(let x=0;x<=W;x+=8){const n=Math.sin(x*.012+seed)*.5+Math.sin(x*.031+seed*2)*.3+Math.sin(x*.07+seed*3)*.15;ctx.lineTo(x,base+cam*par+n*amp)}ctx.lineTo(W,H);ctx.fill()}
 function sy(wy){return H*.68-(wy-cam)} // 월드 y -> 화면 y
-function draw(now){requestAnimationFrame(draw);if(mount&&mount.course){BK.draw(now);if(GAME.on)GAME.draw(now);return}
+function draw(now){requestAnimationFrame(draw);if(mount&&mount.course){PX.draw(now);if(GAME.on)GAME.draw(now);return}
  const m=players.find(p=>p.id===me),pr=m&&mount?m.h/mount.h:0;camT=pr*WORLD();cam+=(camT-cam)*.08;
  const k=Math.min(1,cam/WORLD());
  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,`hsl(${215-k*15},${60+k*10}%,${55-k*25}%)`);g.addColorStop(1,`hsl(${30+k*170},80%,${82-k*20}%)`);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
