@@ -92,7 +92,7 @@ const BK=(()=>{
   // 등산객 + 이름표 배치(내 이름표·깃발 자리 먼저 확보)
   const mx=gx(d),my=gy(alt(d)),placed=[[mx,my-76,96],[mx,my-58,40],[mx,my-38,40],[mx,my-18,40]];LB=[];const fx=gx(L);if(fx>-60&&fx<W+60)placed.push([fx+48,gy(TOP)-60,40]);
   for(const p of players.filter(p=>p.id!==me).sort((a,b)=>a.h-b.h)){const pd=p.h+((p.id*37)%9-4),x=gx(pd),y=gy(alt(pd));if(x<-40||x>W+40)continue;hikerC(x,y,p,now,placed)}
-  if(m)hiker(mx,my,m,now,[]);for(const f of LB)f()}
+  if(GAME.on)GAME.under(now);if(m)hiker(mx,my-GAME.airY(now),m,now,[]);for(const f of LB)f()}
  let LB=[];
  function hikerC(x,y,p,now,placed){const l0=y-46*.95-14;hiker(x,y,p,now,[[x,l0]]); // 기본 이름표는 끄고 아래에서 배치
   ctx.font='11px sans-serif';const t=p.name,w=ctx.measureText(t).width+12;let ly=l0;

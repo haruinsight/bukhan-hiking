@@ -22,7 +22,7 @@ function onMsg(e){const d=JSON.parse(e.data);
  if(d.t==='summit'){today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms);setTimeout(showCard,w)}else showCard()}
  if(d.t==='rank'&&GAME.on){$('rank').innerHTML=GAME.rankHTML(d.list);$('rank').classList.remove('hide')}}
 const step=()=>{if(ws&&ws.readyState===1&&me&&$('card').classList.contains('hide')){if(GAME.on&&!GAME.tryStep())return;ws.send('{"t":"step"}')}};
-$('stepBtn').onclick=step;onkeydown=e=>{if(e.code==='Space'){e.preventDefault();step()}};
+$('stepBtn').onclick=step;onkeydown=e=>{if(e.code==='Space'||(GAME.on&&e.code==='ArrowUp')){e.preventDefault();step()}};cv.addEventListener('pointerdown',()=>{if(GAME.on&&$('card').classList.contains('hide'))GAME.jump()});
 // 화면
 function resize(){DPR=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener('resize',resize);resize();
 const WORLD=()=>H*2.2; // 산 전체 높이(px)
@@ -95,4 +95,4 @@ function showCard(){cardCv=makeCard();$('cardImg').src=cardCv.toDataURL('image/p
 $('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'북한산백운대':mount.name}_정상인증_${dayKey()}.png`;a.click()};
 $('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`${mount.course?'북한산 백운대':mount.name} ${mount.course?836:mount.h}m 정상 찍었다! 오늘 ${today}번째 ⛰️`;
  try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('공유 문구를 복사했어요!')}}catch(e){}});
-$('again').onclick=()=>$('card').classList.add('hide');
+$('again').onclick=()=>{$('card').classList.add('hide');if(GAME.on)GAME.again()};
