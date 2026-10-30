@@ -38,7 +38,7 @@ input{width:100%;padding:12px;border:2px solid #dde;border-radius:12px;font-size
 .dc em{position:absolute;top:6px;right:6px;font-size:10px;font-style:normal;background:#2f8f5b;color:#fff;border-radius:8px;padding:1px 6px}
 .dc.on{border-color:#f0602a;background:#fff1e6;box-shadow:0 0 0 3px #f0602a44}.dc:disabled{opacity:.55;filter:grayscale(.6)}
 #rwBar{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(#2b1d1400,#2b1d14 40%)}#rwOk{max-width:420px}#rwOk:disabled{background:#777}
-#tblCv{display:block;margin:6px auto}#tblMsg{font-size:14px;max-width:640px;margin:0 auto 8px;line-height:1.4}#tblMsg small{display:block;opacity:.75;font-size:12px}
+#tblCv{display:block;margin:6px auto}#tbl{overflow-y:auto}#tblMsg{font-size:14px;max-width:640px;margin:0 auto 8px;line-height:1.4}#tblMsg small{display:block;opacity:.75;font-size:12px}
 .sc{margin-top:10px;font-size:13px;color:#666}.sc b{font-size:22px;color:#f0602a;margin-right:4px}.tierHint{margin-top:4px;font-size:13px;font-weight:700;color:#2f8f5b}
 #yahoo{z-index:9;background:#000}#yhCv{width:100%;height:100%;display:block}
 .hide{display:none!important}
@@ -62,4 +62,4 @@ body:not(.chal) #stepBtn{display:none}body.chal #feet{display:none}
 <div id="mapSvg"></div><footer><button id="mapGo" onclick="document.getElementById('bkPin').onclick()">⛰️ Hike Bukhansan<small style="display:block;font-weight:500;font-size:11px;opacity:.85">북한산</small></button><button id="mapTable">🍚 My Korean Table<small id="mapCount"></small></button></footer></div>
 <div class="scr hide" id="yahoo"><canvas id="yhCv"></canvas></div><div class="scr hide" id="reward"><h2>🍚 Your Reward · Korean Table <small style="font-size:12px;opacity:.7">한국의 밥상</small></h2><div id="rwTitle"></div><div id="rwList"></div><div id="rwBar"><button class="go" id="rwOk" disabled>Pick a dish</button></div></div>
 <div class="scr hide" id="tbl"><h2>🍚 My Korean Table <small style="font-size:12px;opacity:.7">나의 밥상</small></h2><canvas id="tblCv"></canvas><div id="tblMsg"></div><button class="go" id="tblBack" style="max-width:420px">🗺️ Choose another mountain</button></div>
-<script src="mountains.js"></script><script src="bukhan.js"></script><script src="map.js"></script><script src="game.js"></script><script src="rh.js"></script><script src="re.js"></script><script src="app.js"></script></body></html>
+<script src="mountains.js"></script><script src="bukhan.js"></script><script src="dishes.js"></script><script src="map.js"></script><script src="game.js"></script><script src="rh.js"></script><script src="re.js"></script><script src="app.js"></script></body></html>
