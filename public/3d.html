@@ -1,0 +1,25 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>같이 등산 3D · 북한산 백운대</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;background:#9fc3e0}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+#top{position:fixed;top:0;left:0;right:0;padding:12px 14px;color:#fff;display:flex;justify-content:space-between;text-shadow:0 1px 3px #000a;pointer-events:none}
+#top b{font-size:20px}.s{font-size:13px;opacity:.95}#alt{text-align:right}#alt b{font-size:24px}
+#bar{position:fixed;top:64px;left:14px;right:14px;height:8px;background:#fff5;border-radius:4px}#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd54a,#ff8a3d);border-radius:4px}
+#spot{position:fixed;top:82px;left:50%;transform:translateX(-50%);background:#0007;color:#fff;padding:5px 14px;border-radius:14px;font-size:13px;font-weight:700;white-space:nowrap}
+#to2d{position:fixed;top:116px;left:14px;padding:6px 10px;border-radius:10px;background:#0006;color:#fff;font-size:13px;text-decoration:none}
+#stepBtn{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);width:min(78vw,320px);height:84px;border:0;border-radius:42px;font-size:28px;font-weight:800;color:#fff;background:linear-gradient(#ff9a3d,#f0602a);box-shadow:0 6px 0 #b9441a,0 10px 24px #0006;-webkit-tap-highlight-color:transparent}
+#stepBtn:active{transform:translateX(-50%) translateY(5px);box-shadow:0 1px 0 #b9441a}
+.modal{position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px}.box{background:#fffdf7;border-radius:22px;padding:22px;width:100%;max-width:380px;text-align:center}
+.box h1{margin:0 0 6px;font-size:24px}input{width:100%;padding:12px;border:2px solid #dde;border-radius:12px;font-size:16px;margin:10px 0}.go{width:100%;padding:14px;border:0;border-radius:14px;background:#2f8f5b;color:#fff;font-size:18px;font-weight:800}
+#cardImg{width:100%;border-radius:14px}.row{display:flex;gap:8px;margin-top:12px}.row button{flex:1;padding:13px;border:0;border-radius:12px;font-size:16px;font-weight:700}.hide{display:none!important}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;background:#6f9cc4}
+</style></head><body>
+<canvas id="gl"></canvas>
+<div id="top"><div><b>🧊 북한산 백운대 3D</b><div class="s" id="who">접속 중…</div></div><div id="alt"><b id="myH">320m</b><div class="s" id="goal">0.00 / 1.9km</div></div></div>
+<div id="bar"><i id="barI"></i></div><div id="spot">📍 백운대탐방지원센터</div><a id="to2d" href="/">🖼️ 2D로 보기</a>
+<button id="stepBtn">👣 한 걸음</button>
+<div class="modal" id="pick"><div class="box"><h1>⛰️ 북한산 백운대 3D</h1><div style="color:#666;font-size:14px">실제 지형 위 백운대 코스 1.9km를 함께 올라요</div><input id="nick" maxlength="10" placeholder="닉네임 (선택)"><button class="go" id="go">출발하기</button></div></div>
+<div class="modal hide" id="card"><div class="box"><h1>🎉 정상 도착!</h1><img id="cardImg" alt="인증 카드"><div class="row"><button id="save" style="background:#2f8f5b;color:#fff">PNG 저장</button><button id="share" style="background:#3a6fd8;color:#fff">공유하기</button></div><div class="row"><button id="again" style="background:#eee">다시 오르기</button></div></div></div>
+<div id="load">지형 불러오는 중…</div>
+<script>var ctx=null,clouds=[];</script><script src="bukhan.js"></script>
+<script type="module" src="3d.js"></script></body></html>
