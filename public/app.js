@@ -4,13 +4,13 @@ let W,H,DPR,ws,me=null,mt='halla',mount=null,players=[],room=1,cam=0,camT=0,walk
 const COL=['#e8553b','#3a7bd5','#f2b632','#8e5bd6','#2aa876','#ff7aa8'];
 for(let i=0;i<6;i++)clouds.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
 // 산 선택
-mt=localStorage.mt||'bukhan';$('nick').value=localStorage.nick||'';
+mt='bukhan';$('nick').value=localStorage.nick||'';
 $('mts').innerHTML=Object.entries(MTS).sort((x,y)=>(y[0]==='bukhan')-(x[0]==='bukhan')).map(([k,v])=>`<button data-k="${k}">${v.name}<small>${k==='bukhan'?'백운대 코스 1.9km':v.h.toLocaleString()+'m'}</small></button>`).join('');
 const mark=()=>[...$('mts').children].forEach(b=>b.classList.toggle('on',b.dataset.k===mt));mark();
 $('mts').onclick=e=>{const b=e.target.closest('button');if(b){mt=b.dataset.k;mark()}};
 $('modes').onclick=e=>{const b=e.target.closest('button');if(!b)return;GAME.mode=b.dataset.m;localStorage.mode=GAME.mode;markM()};const markM=()=>[...$('modes').children].forEach(b=>b.classList.toggle('on',b.dataset.m===GAME.mode));markM();
 $('go').onclick=()=>{localStorage.mt=mt;localStorage.nick=$('nick').value;$('pick').classList.add('hide');connect()};
-$('chg').onclick=()=>$('pick').classList.remove('hide');
+$('chg').onclick=()=>MAP.show();
 function connect(){if(ws&&ws.readyState===1)return join();ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host);ws.onopen=join;ws.onmessage=onMsg;ws.onclose=()=>setTimeout(connect,1500)}
 function join(){RH.reset();today=+(localStorage['t_'+mt+'_'+dayKey()]||0);GAME.start();ws.send(JSON.stringify({t:'join',mt,name:$('nick').value,mode:GAME.on?'challenge':'walk'}))}
 const dayKey=()=>new Date().toLocaleDateString('sv');
@@ -19,7 +19,7 @@ function onMsg(e){const d=JSON.parse(e.data);
  if(d.t==='state'){players=d.players;for(const p of players){if(lastH[p.id]!==undefined&&p.h>lastH[p.id])walk[p.id]=performance.now();lastH[p.id]=p.h}
   {const mm=players.find(p=>p.id===me);if(mm&&GAME.on)GAME.onMove(mm.h)}
   const m=players.find(p=>p.id===me);$('who').textContent=`${room}번 방 · 함께 ${players.length}/100명`;if(m){if(mount.course){const e=BK.alt(m.h);$('myH').textContent=Math.round(e)+'m';$('goal').textContent=(m.h/1000).toFixed(2)+' / '+(BK.L/1000).toFixed(1)+'km'}else $('myH').textContent=m.h.toLocaleString()+'m';$('barI').style.width=(m.h/mount.h*100)+'%'}}
- if(d.t==='summit'){RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms);setTimeout(showCard,w)}else showCard()}
+ if(d.t==='summit'){const rs=GAME.on?null:RH.score(d.ms);RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;if(GAME.on){const w=GAME.onSummit(d.ms),r=GAME.result();LAST={mode:'challenge',ms:d.ms,score:r.final,det:r};setTimeout(showCard,w)}else{LAST={mode:'walk',ms:d.ms,score:rs.score,det:rs};showCard()}}
  if(d.t==='rank'&&GAME.on){$('rank').innerHTML=GAME.rankHTML(d.list);$('rank').classList.remove('hide')}}
 const step=()=>{if(ws&&ws.readyState===1&&me&&$('card').classList.contains('hide')){if(GAME.on&&!GAME.tryStep())return;ws.send('{"t":"step"}')}};
 $('stepBtn').onclick=step;onkeydown=e=>{if(e.repeat)return;if(GAME.on){if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();step()}return}if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();RH.press('L');ft('lf')}if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();RH.press('R');ft('rf')}};
@@ -93,8 +93,10 @@ function makeCard(){const c=document.createElement('canvas');c.width=1080;c.heig
  x.fillStyle='#f0602a';x.font='bold 48px sans-serif';x.fillText(`오늘 정상 ${today}번째 🏁`,540,1235);
  x.fillStyle='#fff';x.font='32px sans-serif';x.fillText('같이 등산 ⛰️ 함께 오르는 온라인 산',540,1330);return c}
 let cardCv;
-function showCard(){cardCv=makeCard();$('cardImg').src=cardCv.toDataURL('image/png');$('card').classList.remove('hide')}
+function showCard(){cardCv=makeCard();MAP.cardInfo();$('cardImg').src=cardCv.toDataURL('image/png');$('card').classList.remove('hide')}
 $('save').onclick=()=>{const a=document.createElement('a');a.href=cardCv.toDataURL('image/png');a.download=`${mount.course?'북한산백운대':mount.name}_정상인증_${dayKey()}.png`;a.click()};
 $('share').onclick=()=>cardCv.toBlob(async b=>{const f=new File([b],'summit.png',{type:'image/png'}),txt=`${mount.course?'북한산 백운대':mount.name} ${mount.course?836:mount.h}m 정상 찍었다! 오늘 ${today}번째 ⛰️`;
  try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],text:txt,url:location.href});else if(navigator.share)await navigator.share({text:txt,url:location.href});else{await navigator.clipboard.writeText(txt+' '+location.href);alert('공유 문구를 복사했어요!')}}catch(e){}});
 $('again').onclick=()=>{$('card').classList.add('hide');if(GAME.on)GAME.again()};
+
+MAP.init();

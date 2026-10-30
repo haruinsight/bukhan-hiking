@@ -18,6 +18,28 @@ input{width:100%;padding:12px;border:2px solid #dde;border-radius:12px;font-size
 #card img{width:100%;border-radius:14px;box-shadow:0 4px 14px #0003}.row{display:flex;gap:8px;margin-top:12px}.row button{flex:1;padding:13px;border:0;border-radius:12px;font-size:16px;font-weight:700}
 #chg{position:fixed;top:78px;left:14px;padding:6px 10px;border:0;border-radius:10px;background:#0005;color:#fff;font-size:13px}
 #rank{margin-top:10px;text-align:left;font-size:13px;background:#f4f1e8;border-radius:12px;padding:8px 12px;max-height:150px;overflow:auto}#rank div{display:flex;justify-content:space-between;padding:2px 0}#rank span{color:#777}
+
+.scr{position:fixed;inset:0;overflow:auto;z-index:5}
+#map{background:linear-gradient(#f6f1e6,#e9e2d0);display:flex;flex-direction:column;align-items:center}
+#map header{width:100%;max-width:760px;padding:16px 18px 4px;text-align:left}#map h1{margin:0;font-size:24px;color:#23382c}#map h1 small{font-size:13px;color:#6a7a6e;font-weight:600;margin-left:6px}
+#map .intro{margin:6px 0 0;font-size:13px;color:#4c5a50;line-height:1.45}#map .intro em{display:block;color:#7a857c;font-size:12.5px}
+#mapSvg{flex:1;width:100%;max-width:760px;min-height:0;padding:0 8px}#mapSvg svg{width:100%;height:100%;max-height:calc(100vh - 170px);display:block}
+#map footer{display:flex;gap:8px;padding:8px 14px 16px;width:100%;max-width:520px}#map footer button{flex:1;padding:13px;border:0;border-radius:14px;font-size:15px;font-weight:800}
+#mapGo{background:#2f8f5b;color:#fff}#mapTable{background:#fff;color:#8a4e24;box-shadow:0 2px 8px #0002}#mapTable small{display:block;font-weight:500;font-size:11px;color:#9a7a5a}
+.ct{font-size:12px;fill:#4a5a4e;font-weight:600}.ct.b{font-size:14px;fill:#a8382c;font-weight:800}.ct.sm{font-size:10px}.en{font-weight:500;fill:#7d8a80;font-size:10.5px}.sea{font-size:13px;fill:#5f8fa0;font-style:italic;letter-spacing:1px}.pk{font-size:15px;font-weight:800;fill:#1f5e3c}
+@media (orientation:landscape) and (max-height:520px){#map{flex-direction:row;flex-wrap:wrap;align-content:flex-start}#map header{width:40%;padding:14px}#mapSvg{width:60%;height:100vh;flex:none;order:3}#mapSvg svg{max-height:100vh}#map footer{width:40%;flex-direction:column;padding:0 14px}}
+#reward,#tbl{background:#2b1d14ee;color:#fff;padding:14px;text-align:center}
+#reward h2,#tbl h2{margin:6px 0;font-size:20px}#rwTitle small{font-size:12px;opacity:.7;font-weight:500}
+.tier{max-width:760px;margin:12px auto;background:#fff8ec;color:#333;border-radius:18px;padding:10px 12px;text-align:left}.tier h3{margin:2px 4px 8px;font-size:16px}.tier h3 small{font-size:11px;color:#998;font-weight:500}
+.tier.locked{background:#e8e2d6}.lockMsg{margin:0 4px 8px;font-size:13px;font-weight:800;color:#c2502a}
+.dg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media (max-width:520px){.dg{grid-template-columns:repeat(2,1fr)}}
+.dc{border:2px solid #eadfcb;background:#fff;border-radius:14px;padding:6px 6px 8px;text-align:center;font:inherit;color:#333;position:relative}
+.dc canvas{width:84px;height:84px}.dc b{display:block;font-size:15px}.dc i{display:block;font-size:11px;color:#8a6a4a;font-style:normal;font-weight:700}.dc p{margin:4px 0 0;font-size:10.5px;line-height:1.35;color:#777}
+.dc em{position:absolute;top:6px;right:6px;font-size:10px;font-style:normal;background:#2f8f5b;color:#fff;border-radius:8px;padding:1px 6px}
+.dc.on{border-color:#f0602a;background:#fff1e6;box-shadow:0 0 0 3px #f0602a44}.dc:disabled{opacity:.55;filter:grayscale(.6)}
+#rwBar{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(#2b1d1400,#2b1d14 40%)}#rwOk{max-width:420px}#rwOk:disabled{background:#777}
+#tblCv{display:block;margin:6px auto}#tblMsg{font-size:14px;max-width:640px;margin:0 auto 8px;line-height:1.4}#tblMsg small{display:block;opacity:.75;font-size:12px}
+.sc{margin-top:10px;font-size:13px;color:#666}.sc b{font-size:22px;color:#f0602a;margin-right:4px}.tierHint{margin-top:4px;font-size:13px;font-weight:700;color:#2f8f5b}
 .hide{display:none!important}
 
 body:not(.chal) #stepBtn{display:none}body.chal #feet{display:none}
@@ -30,9 +52,13 @@ body:not(.chal) #stepBtn{display:none}body.chal #feet{display:none}
 <canvas id="cv"></canvas>
 <div id="top"><div><b id="mtName">⛰️ 같이 등산</b><div class="s" id="who">산을 골라 주세요</div></div><div id="alt"><b id="myH">0m</b><div class="s" id="goal"></div></div></div>
 <div id="bar"><i id="barI"></i></div>
-<button id="chg">🗺️ 산 바꾸기</button><!-- 3D 버튼 숨김(3d.html 파일은 유지) -->
+<button id="chg">🗺️ 지도로</button><!-- 3D 버튼 숨김(3d.html 파일은 유지) -->
 <div id="feet"><button id="lf">🦶<b>왼발</b><small>← / A</small></button><button id="rf">🦶<b>오른발</b><small>→ / D</small></button></div><button id="stepBtn">👣 한 걸음</button>
-<div class="modal" id="pick"><div class="box"><h1>⛰️ 같이 등산</h1><p>버튼을 누를 때마다 한 걸음! 전국 사람들과 함께 정상까지 올라가요.</p>
-<div class="mts" id="mts"></div><div class="mts" id="modes"><button data-m="walk">🚶 산책 모드<small>기본 · 편하게</small></button><button data-m="challenge">🏁 도전 모드<small>점프로 장애물 피하기 (북한산)</small></button></div><input id="nick" maxlength="10" placeholder="닉네임 (선택)"><button class="go" id="go">출발하기</button></div></div>
-<div class="modal hide" id="card"><div class="box"><h1>🎉 정상 도착!</h1><img id="cardImg" alt="인증 카드"><div class="row"><button id="save" style="background:#2f8f5b;color:#fff">PNG 저장</button><button id="share" style="background:#3a6fd8;color:#fff">공유하기</button></div><div id="rank" class="hide"></div><div class="row"><button id="again" style="background:#eee">다시 오르기</button></div></div></div>
-<script src="mountains.js"></script><script src="bukhan.js"></script><script src="game.js"></script><script src="rh.js"></script><script src="re.js"></script><script src="app.js"></script></body></html>
+<div class="modal hide" id="pick"><div class="box"><h1>⛰️ 북한산 백운대</h1><p>836m · 백운대 코스 1.9km<br>모드를 고르고 출발하세요. 점수가 높을수록 맛있는 반찬!</p>
+<div class="mts hide" id="mts"></div><div class="mts" id="modes"><button data-m="walk">🚶 산책 모드<small>기본 · 편하게</small></button><button data-m="challenge">🏁 도전 모드<small>점프로 장애물 피하기 (북한산)</small></button></div><input id="nick" maxlength="10" placeholder="닉네임 (선택)"><button class="go" id="go">출발하기</button><button id="pickBack" style="margin-top:8px;width:100%;padding:10px;border:0;background:none;color:#888;font-size:14px">← 지도로 돌아가기</button></div></div>
+<div class="modal hide" id="card"><div class="box"><h1>🎉 정상 도착!</h1><img id="cardImg" alt="인증 카드"><div class="row"><button id="save" style="background:#2f8f5b;color:#fff">PNG 저장</button><button id="share" style="background:#3a6fd8;color:#fff">공유하기</button></div><div id="rank" class="hide"></div><div id="scoreLine"></div><button class="go" id="toReward" style="margin-top:12px;background:linear-gradient(#e0703a,#c2502a)">🍚 보상 받기 · 한국의 밥상</button><div class="row"><button id="again" style="background:#eee">다시 오르기</button></div></div></div>
+<div class="scr" id="map"><header><h1>⛰️ 같이 등산 <small>Hike Korea together</small></h1><p class="intro">지도에서 북한산을 눌러 출발! 정상에 오르면 한국의 밥상 반찬을 드려요.<em>Bukhansan National Park sits right inside Seoul — granite peaks, old fortress walls and temples. Climb to Baegundae (836m) and earn Korean dishes for your table!</em></p></header>
+<div id="mapSvg"></div><footer><button id="mapGo" onclick="document.getElementById('bkPin').onclick()">⛰️ 북한산 오르기<small style="display:block;font-weight:500;font-size:11px;opacity:.85">Hike Bukhansan</small></button><button id="mapTable">🍚 나의 밥상<small id="mapCount"></small></button></footer></div>
+<div class="scr hide" id="reward"><h2>🍚 한국의 밥상 · 보상</h2><div id="rwTitle"></div><div id="rwList"></div><div id="rwBar"><button class="go" id="rwOk" disabled>반찬을 골라 주세요</button></div></div>
+<div class="scr hide" id="tbl"><h2>🍚 나의 밥상 <small style="font-size:12px;opacity:.7">My Korean Table</small></h2><canvas id="tblCv"></canvas><div id="tblMsg"></div><button class="go" id="tblBack" style="max-width:420px">🗺️ 한국 지도로</button></div>
+<script src="mountains.js"></script><script src="bukhan.js"></script><script src="map.js"></script><script src="game.js"></script><script src="rh.js"></script><script src="re.js"></script><script src="app.js"></script></body></html>

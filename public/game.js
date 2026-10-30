@@ -12,7 +12,7 @@ const GAME=(()=>{
   b.textContent=G.on?'⤴ 점프':'👣 한 걸음';document.body.classList.toggle('chal',G.on);b.classList.toggle('jump',G.on);if(!G.on)return;
   startAt=performance.now()+2400;nextStep=startAt;timer=setInterval(tick,40)};
  function tick(){if(!G.on||failed)return;const now=performance.now();if(now<nextStep||now<stunUntil)return;
-  if(!document.getElementById('card').classList.contains('hide'))return;
+  if(uiOpen())return;
   if(ws&&ws.readyState===1&&me){if(!t0)t0=Date.now();ws.send('{"t":"step"}')}const z=BK.zoneOf(lastD);nextStep=now+(z.slab?500:z.steps?440:380)}
  G.airY=now=>{if(!G.on)return 0;const t=(now-jumpAt)/JD;return t>=0&&t<1?4*t*(1-t)*JH:0};
  G.jump=()=>{const now=performance.now();if(failed){failed=false;join();return}
@@ -31,7 +31,7 @@ const GAME=(()=>{
   for(const k in got)if(!BADGES[k])delete got[k];
   add('first');if(ms<100000)add('sub');if(!hits)add('nohit');if(sq>=5)add('squirrel');if(best>=15)add('jump');
   localStorage.bk_badges=JSON.stringify(got);const pb=+localStorage.bk_pb2||0,isPB=!pb||ms<pb;if(isPB)localStorage.bk_pb2=ms;
-  result={ms,score,hits,dodged,pb:isPB?ms:pb,isPB,earn,all:Object.keys(got),splits:splits.slice()};
+  const tb=Math.max(0,Math.round((200-ms/1000)*5)),nb=hits?0:300;result={ms,score,hits,dodged,pb:isPB?ms:pb,isPB,earn,all:Object.keys(got),splits:splits.slice(),final:score+tb+nb,tb,nb};
   const now=performance.now();badgePop=earn.map((k,i)=>({k,from:now+i*1100,until:now+i*1100+1000}));
   ws.send(JSON.stringify({t:'record',score}));const r=result,bp=badgePop;reset();result=r;badgePop=bp;startAt=1e15;return earn.length?earn.length*1100+300:0};
  G.again=()=>{startAt=performance.now()+2400;nextStep=startAt};
