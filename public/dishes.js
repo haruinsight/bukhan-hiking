@@ -1,5 +1,5 @@
 // 한국의 밥상: 반찬 데이터 + 사실풍 탑뷰 렌더러 (모두 코드로 그림)
-const TIER=[{need:0,ko:'기본 반찬',en:'Everyday Banchan'},{need:400,ko:'집밥 반찬',en:'Home Favorites'},{need:800,ko:'특별 요리',en:'Special Dishes'},{need:1200,ko:'잔칫상',en:'Feast Dishes'},{need:1600,ko:'궁중 요리',en:'Royal Court Cuisine'}];
+const TIER=[{need:0,ko:'기본 반찬',en:'Everyday Banchan'},{need:900,ko:'집밥 반찬',en:'Home Favorites'},{need:1700,ko:'특별 요리',en:'Special Dishes'},{need:2500,ko:'잔칫상',en:'Feast Dishes'},{need:3000,ko:'궁중 요리',en:'Royal Court Cuisine'}];
 const tierOf=s=>{let t=0;TIER.forEach((T,i)=>{if(s>=T.need)t=i});return t};
 // 색
 const RED=['#d8402c','#c23420','#e85a3a'],GRN=['#4f9a36','#3a7f2a','#68ad46'],SCAL=['#5aa83e','#7cc25a'],CARROT=['#f08a2a','#e8761e'],BRN=['#7a4220','#5e3016','#8a5228'];

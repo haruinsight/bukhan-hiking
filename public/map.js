@@ -3,7 +3,14 @@ window.STOP_EN={'Trailhead Center':'백운대탐방지원센터','Doseonsa Junct
 function uiOpen(){return [...document.querySelectorAll('.modal,.scr')].some(e=>!e.classList.contains('hide'))}
 let LAST=null;
 const MAP=(()=>{
- const M={};const $=id=>document.getElementById(id);
+ const M={};
+ // data-driven mountain list: add a mountain here (play:true once its course exists)
+ const MOUNTS=M.MOUNTS=[
+  {id:'bukhan',en:'Bukhansan',ko:'북한산',peak:'Baegundae',h:836,lo:126.98,la:37.66,play:true,course:'1.9 km · Baegundae trail',intro:'A granite national park right inside Seoul. Climb past old fortress walls and Buddhist hermitages to Baegundae peak for a view over the whole city.'},
+  {id:'seorak',en:'Seoraksan',ko:'설악산',peak:'Daecheongbong',h:1708,lo:128.47,la:38.12},
+  {id:'jiri',en:'Jirisan',ko:'지리산',peak:'Cheonwangbong',h:1915,lo:127.73,la:35.34},
+  {id:'halla',en:'Hallasan',ko:'한라산',peak:'Baengnokdam',h:1947,lo:126.53,la:33.36},
+  {id:'deogyu',en:'Deogyusan',ko:'덕유산',peak:'Hyangjeokbong',h:1614,lo:127.74,la:35.86}];const $=id=>document.getElementById(id);
  const col=()=>{try{return JSON.parse(localStorage.bapsang||'{}')}catch(e){return{}}};
  // ── 지도 (경도,위도) ──
  const LAND=[[126.12,37.74],[126.45,37.8],[126.68,37.95],[126.95,38.1],[127.25,38.3],[127.6,38.33],[128.05,38.31],[128.36,38.62],[128.55,38.3],[128.75,38.0],[129.05,37.62],[129.3,37.2],[129.42,36.8],[129.47,36.4],[129.38,36.02],[129.57,36.0],[129.45,35.6],[129.33,35.3],[129.1,35.1],[128.85,35.05],[128.6,34.88],[128.38,34.83],[128.05,34.9],[127.75,34.72],[127.55,34.8],[127.38,34.55],[127.15,34.6],[126.92,34.42],[126.62,34.3],[126.38,34.48],[126.28,34.75],[126.42,35.05],[126.4,35.45],[126.6,35.75],[126.72,36.02],[126.55,36.25],[126.5,36.5],[126.22,36.68],[126.42,36.95],[126.82,36.98],[126.75,37.2],[126.6,37.42],[126.52,37.62]];
@@ -11,7 +18,7 @@ const MAP=(()=>{
  const path=pts=>'M'+pts.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join('L')+'Z';
  const isl=(lon,lat,rx,ry,r=0)=>`<ellipse cx="${X(lon)}" cy="${Y(lat)}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${X(lon)} ${Y(lat)})"/>`;
  const city=(lon,lat,ko,en,dx=8)=>`<circle cx="${X(lon)}" cy="${Y(lat)}" r="3" fill="#8a9a8c"/><text x="${X(lon)+dx}" y="${Y(lat)+4}" class="ct">${ko} <tspan class="en">${en}</tspan></text>`;
- function svg(){const bx=X(126.98),by=Y(37.66);
+ function svg(){
   return `<svg viewBox="0 0 760 740" preserveAspectRatio="xMidYMid meet" id="krsvg"><defs>
   <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe6ee"/><stop offset="1" stop-color="#a9d0de"/></linearGradient>
   <linearGradient id="land" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9efd9"/><stop offset=".6" stop-color="#d9e4c3"/><stop offset="1" stop-color="#c9d8b0"/></linearGradient>
@@ -31,11 +38,12 @@ const MAP=(()=>{
   <text x="${X(126.55)}" y="${Y(33.38)+36}" class="ct" text-anchor="middle">Jeju <tspan class="en">제주</tspan></text>
   <text x="${X(130.87)}" y="${Y(37.5)-10}" class="ct sm" text-anchor="middle">Ulleungdo</text><text x="${X(131.87)}" y="${Y(37.24)+16}" class="ct sm" text-anchor="middle">Dokdo 독도</text>
   <circle cx="${X(126.98)}" cy="${Y(37.56)}" r="5" fill="#d0574a" stroke="#fff" stroke-width="1.5"/><text x="${X(126.98)-10}" y="${Y(37.56)+18}" class="ct b" text-anchor="end">Seoul <tspan class="en">서울</tspan></text>
-  ${[[128.47,38.12,'Seoraksan'],[127.73,35.34,'Jirisan'],[126.53,33.36,'Hallasan'],[127.74,35.86,'Deogyusan']].map(([lo,la,n])=>`<g opacity=".75"><path d="M${X(lo)},${Y(la)} c-3,-7 -10,-11 -10,-19 a10,10 0 1,1 20,0 c0,8 -7,12 -10,19z" fill="#9aa0a0" stroke="#fff" stroke-width="2"/><text x="${X(lo)}" y="${Y(la)+13}" text-anchor="middle" class="ct sm" style="fill:#7d8580">${n} · Coming soon</text></g>`).join('')}
-  <g id="bkPin" style="cursor:pointer"><circle cx="${bx}" cy="${by}" r="16" fill="#2f8f5b" opacity=".25"><animate attributeName="r" values="10;26;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;0;.45" dur="2s" repeatCount="indefinite"/></circle>
-   <path d="M${bx},${by} c-4,-10 -14,-16 -14,-27 a14,14 0 1,1 28,0 c0,11 -10,17 -14,27z" fill="#2f8f5b" stroke="#fff" stroke-width="2.5"/><path d="M${bx-7},${by-23} l7,-9 l3,4 l2,-2 l4,7z" fill="#fff"/>
-   <g transform="translate(${bx-190},${by-78})"><rect width="168" height="50" rx="12" fill="#fff" filter="url(#sh)"/><text x="12" y="21" class="pk">⛰️ Bukhansan 북한산</text><text x="12" y="39" class="ct en">Baegundae 836m · Tap to hike!</text></g>
-   <rect x="${bx-195}" y="${by-80}" width="215" height="85" fill="transparent"/></g></svg>`}
+  ${MOUNTS.map(m=>pin(m)).join('')}</svg>`}
+ function pin(m){const x=X(m.lo),y=Y(m.la);if(!m.play)return `<g class="pinSoon" data-id="${m.id}" style="cursor:not-allowed" opacity=".75"><path d="M${x},${y} c-3,-7 -10,-11 -10,-19 a10,10 0 1,1 20,0 c0,8 -7,12 -10,19z" fill="#9aa0a0" stroke="#fff" stroke-width="2"/><text x="${x}" y="${y+13}" text-anchor="middle" class="ct sm" style="fill:#7d8580">${m.en} · Coming soon</text></g>`;
+  return `<g id="${m.id==='bukhan'?'bkPin':'pin_'+m.id}" class="pinOn" data-id="${m.id}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="16" fill="#2f8f5b" opacity=".25"><animate attributeName="r" values="10;26;10" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".45;0;.45" dur="2s" repeatCount="indefinite"/></circle>
+   <path d="M${x},${y} c-4,-10 -14,-16 -14,-27 a14,14 0 1,1 28,0 c0,11 -10,17 -14,27z" fill="#2f8f5b" stroke="#fff" stroke-width="2.5"/><path d="M${x-7},${y-23} l7,-9 l3,4 l2,-2 l4,7z" fill="#fff"/>
+   <g transform="translate(${x-190},${y-78})"><rect width="168" height="50" rx="12" fill="#fff" filter="url(#sh)"/><text x="12" y="21" class="pk">⛰️ ${m.en} ${m.ko}</text><text x="12" y="39" class="ct en">${m.peak} ${m.h}m · Tap to select</text></g>
+   <rect x="${x-195}" y="${y-80}" width="215" height="85" fill="transparent"/></g>`}
  // ── 반찬 그리기(위에서 본 모습) ──
  function rng(s){return()=>{s=(s*16807)%2147483647;return s/2147483647}}
  const inR=(r,R)=>{const a=r()*6.283,d=Math.sqrt(r())*R;return[Math.cos(a)*d,Math.sin(a)*d]},blob=(x,X,Y,a,b,rot,c)=>{x.fillStyle=c;x.beginPath();x.ellipse(X,Y,a,b,rot,0,7);x.fill()};
@@ -58,10 +66,21 @@ const MAP=(()=>{
   const by=h-pad-bot*.5,br=Math.min(r*1.05,60);rice(x,w*.4,by,br);cutlery(x,w*.6,by,br*1.2);
   x.fillStyle='#fff';x.font=`bold ${Math.max(12,w*.022)}px sans-serif`;x.textAlign='left';x.fillText(`🍚 Rice, spoon & chopsticks included  ·  ${have.length}/${DISH.length} dishes`,pad+w*.04,h-pad-14)}
  function thumb(d,lock,size=120){const c=document.createElement('canvas');c.width=c.height=size*2;const x=c.getContext('2d');x.scale(2,2);drawDish(x,size/2,size/2,size*.4,d,lock);return c}
+ // ── mountain info card · start ──
+ M.start=()=>{$('mtCard').classList.add('hide');$('map').classList.add('hide');$('pickMis').innerHTML=FX.missionHTML();$('pick').classList.remove('hide')};
+ M.info=id=>{const m=MOUNTS.find(q=>q.id===id);if(!m||!m.play)return;const bs=+localStorage['best_'+id]||0;let pb=null;try{pb=JSON.parse(localStorage.ghostPB||'null')}catch(e){}
+  $('mtBody').innerHTML=`<h2>⛰️ ${m.en} <small>${m.ko}</small></h2><div class="mtH">${m.peak} · <b>${m.h} m</b> <span>(${Math.round(m.h*3.281).toLocaleString()} ft)</span></div><p>${m.intro}</p><div class="mtS"><div><b>${m.course}</b><span>Course</span></div><div><b>${bs?bs.toLocaleString()+' pts':'—'}</b><span>Best score</span></div><div><b>${pb?FX.fmt(pb.ms):'—'}</b><span>Best time</span></div></div>`;$('mtCard').classList.remove('hide')};
+ function toast(t){let e=$('mapToast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+ // ── today's real weather (server-cached Open-Meteo) ──
+ const WMO=c=>c===0?['☀️','Clear']:c<=2?['🌤️','Partly cloudy']:c===3?['☁️','Cloudy']:c<=48?['🌫️','Fog']:c<=57?['🌦️','Drizzle']:c<=67?['🌧️','Rain']:c<=77?['🌨️','Snow']:c<=82?['🌧️','Showers']:c<=86?['🌨️','Snow showers']:['⛈️','Thunderstorm'];
+ M.real=null;
+ function wxLoad(){const el=$('mapWx');fetch('/api/weather').then(r=>r.json()).then(v=>{if(!v||!v.ok)throw 0;M.real=v;const[ic,tx]=WMO(v.code),f=c=>Math.round(c*9/5+32),ico=(!v.day&&v.code<=1)?'🌙':ic;
+  el.innerHTML=`<div class="wi">${ico}</div><div><b>${Math.round(v.t)}°C <span>/ ${f(v.t)}°F</span></b><small>${tx} · Bukhansan today</small></div>`;el.title=v.hi!=null?`High ${Math.round(v.hi)}°C · Low ${Math.round(v.lo)}°C`:''}).catch(()=>{M.real=null;el.innerHTML='<div class="wi">⛅</div><div><b>Seoul</b><small>Weather unavailable</small></div>'})}
+ M.realKind=()=>{const v=M.real;if(!v)return null;const c=v.code;if((c>=71&&c<=77)||c===85||c===86)return'snow';if((c>=51&&c<=67)||(c>=80&&c<=82)||c>=95)return'rain';const h=new Date().getHours();return h<8?'sunrise':h>=17?'sunset':'day'};
  // ── 화면 ──
  M.show=()=>{for(const id of['card','pick','reward'])$(id).classList.add('hide');$('map').classList.remove('hide');const n=DISH.filter(d=>col()[d.id]).length;$('mapCount').textContent=n?`${n}/${DISH.length} dishes collected`:'No dishes yet';$('mapMis').innerHTML=SAVE.welcome()+FX.missionHTML()};
  M.cardInfo=()=>{if(!LAST)return;const s=LAST.score,t=tierOf(s),det=LAST.det;
-  $('scoreLine').innerHTML=`<div class="sc"><b>${s.toLocaleString()} pts</b> <span>⏱ ${FX.fmt(LAST.ms)} · PERFECT ${det.nP} · GOOD ${det.nG} · MISS ${det.nM} · Best combo ${det.best} · 🔥 Fever ×${det.fevers} · Trail bonus ${det.bon} · Quiz ${det.quiz||0} · Time bonus ${det.tb}</span></div>${(LAST.mis||[]).map(q=>`<div class="tierHint">🎯 Mission complete: <b>${q.en}</b> — pick from one tier higher!</div>`).join('')}${LAST.pb?'<div class="tierHint">👻 New personal best! Your ghost will race you next time.</div>':''}<div class="tierHint">🎁 ${TIER[t].en} reward unlocked!${t<TIER.length-1?` ${TIER[t+1].need-s} more pts for ${TIER[t+1].en}`:''}</div>`};
+  $('scoreLine').innerHTML=`<div class="sc"><b>${s.toLocaleString()} pts</b> <span>⏱ ${FX.fmt(LAST.ms)} · PERFECT ${det.nP} · GOOD ${det.nG} · MISS ${det.nM} · Best combo ${det.best} · 🔥 Fever ×${det.fevers} · Trail bonus ${det.bon} · Quiz ${det.quiz||0} · Time bonus ${det.tb} · Accuracy ${det.acc}% (×${(det.am||1).toFixed(2)})</span></div>${(LAST.mis||[]).map(q=>`<div class="tierHint">🎯 Mission complete: <b>${q.en}</b> — pick from one tier higher!</div>`).join('')}${LAST.pb?'<div class="tierHint">👻 New personal best! Your ghost will race you next time.</div>':''}<div class="tierHint">🎁 ${TIER[t].en} reward unlocked!${t<TIER.length-1?` ${TIER[t+1].need-s} more pts for ${TIER[t+1].en}`:''}</div>`};
  function reward(){const s=LAST?LAST.score:0,bst=LAST&&LAST.mis&&LAST.mis.length?1:0,t=Math.min(TIER.length-1,tierOf(s)+bst);$('card').classList.add('hide');$('reward').classList.remove('hide');$('rwTitle').innerHTML=`${s.toLocaleString()} pts · Pick ONE dish for your Korean table<br><small>한국의 밥상 — higher scores unlock tastier dishes</small>${bst?'<br><b style="color:#ffd76a">🎯 Mission bonus: one tier higher unlocked!</b>':''}`;
   const L=$('rwList');L.innerHTML='';let pick=null;$('rwOk').disabled=true;
   TIER.forEach((T,ti)=>{const sec=document.createElement('div');sec.className='tier'+(ti>t?' locked':'');sec.innerHTML=`<h3>${['🥢','🏠','✨','🎉','👑'][ti]} ${T.en}${ti?` (${T.need}+)`:''} <small>${T.ko}</small></h3>${ti>t?`<div class="lockMsg">🔒 Score ${T.need}+ to unlock ${DISH.filter(d=>d.t===ti).map(d=>d.en).slice(0,2).join(' & ')}!</div>`:''}`;
@@ -108,5 +127,5 @@ const MAP=(()=>{
   c.toBlob(async b=>{const f=new File([b],'korean_table.png',{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],text:'My Korean Table from Hike Korea 🍚'});return}}catch(e){}const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='korean_table.png';a.click()});M._shareCv=c}
  M.shareTable=shareTable;M.thumb=thumb;M.table=showTable;M.reward=reward;M.DISH=DISH;
  addEventListener('DOMContentLoaded',()=>{});
- M.init=()=>{$('mapSvg').innerHTML=svg();$('bkPin').onclick=()=>{$('map').classList.add('hide');$('pickMis').innerHTML=FX.missionHTML();$('pick').classList.remove('hide')};$('mapSave').onclick=()=>SAVE.open('save');$('mapLoad').onclick=()=>SAVE.open('load');$('mapMp').onclick=()=>MP.open();$('tblShare').onclick=()=>{clearTimeout(M._bt);shareTable()};$('mapTable').onclick=()=>showTable(null);$('tblBack').onclick=()=>{clearTimeout(M._bt);$('tbl').classList.add('hide');M.show()};$('toReward').onclick=reward;$('pickBack').onclick=()=>M.show();M.show()};
+ M.init=()=>{$('mapSvg').innerHTML=svg();document.querySelectorAll('#mapSvg .pinOn').forEach(g=>g.onclick=()=>M.info(g.dataset.id));document.querySelectorAll('#mapSvg .pinSoon').forEach(g=>g.onclick=()=>{const m=MOUNTS.find(q=>q.id===g.dataset.id);toast(`${m.en} ${m.ko} · ${m.h}m — Coming soon!`)});$('mtStart').onclick=()=>{$('mtCard').classList.add('hide');M.start()};$('mtClose').onclick=()=>$('mtCard').classList.add('hide');wxLoad();$('mapSave').onclick=()=>SAVE.open('save');$('mapLoad').onclick=()=>SAVE.open('load');$('mapMp').onclick=()=>MP.open();$('tblShare').onclick=()=>{clearTimeout(M._bt);shareTable()};$('mapTable').onclick=()=>showTable(null);$('tblBack').onclick=()=>{clearTimeout(M._bt);$('tbl').classList.add('hide');M.show()};$('toReward').onclick=reward;$('pickBack').onclick=()=>M.show();M.show()};
  return M})();

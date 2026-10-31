@@ -1,14 +1,15 @@
 // ── Rhythm Walk: note chart · sections · fever · trail events ──
 const RH=(()=>{
- const HOP=3.2,BASE=6,STEPV=1.5,MAXL=8,LEAD=1700,FEVER_N=10,FEVER_MS=5000;
+ const HOP=3.2,BASE=9,SPR=20,MAXL=8,LEAD=1700,FEVER_N=10,FEVER_MS=5000;
  // section tempo: forest slow, stairs fast, granite syncopated (3-3-2 feel)
  const SEC={forest:{k:'forest',mul:1.15,pat:[1],en:'🌲 Forest · slow beat'},stairs:{k:'stairs',mul:.82,pat:[1],en:'🪜 Stone stairs · fast beat'},granite:{k:'granite',mul:1,pat:[1.125,1.125,.75],en:'🪨 Granite · off-beat'}};
  const secOf=d=>d<800?SEC.forest:d<1400?SEC.stairs:SEC.granite;
  let S;
- function reset(){S={notes:[],nextT:0,pi:0,nIdx:0,last:null,lastT:0,v:0,lvl:0,combo:0,pc:0,fb:null,d:0,pressAt:-1e9,foot:null,hop:false,best:0,tPrev:0,sent:0,
+ function reset(){S={notes:[],nextT:0,pi:0,nIdx:0,last:null,lastT:0,v:0,lvl:0,sp:0,dv:0,combo:0,pc:0,fb:null,d:0,pressAt:-1e9,foot:null,hop:false,best:0,tPrev:0,sent:0,
   nP:0,nG:0,nM:0,nH:0,hops:0,pts:0,bon:0,fever:0,fevers:0,shield:0,ev:null,evPlan:null,sq:0,wob:0,t0:0,tl:[],sec:null,same:false}}
  reset();
- const I=()=>(600-S.lvl*30)*secOf(S.d).mul;
+ const adj=(dv,now)=>{S.sp=Math.max(0,Math.min(1,S.sp+dv));S.lvl=Math.round(S.sp*MAXL);S.dv=dv;S.dvAt=now||performance.now()};
+ const I=()=>(540-S.lvl*28)*secOf(S.d).mul;
  const win=()=>{const m=FX.wx().win;return{P:62*m,G:125*m}};
  const fever=now=>now<S.fever;
  function planEvents(){const r=Math.random;S.evPlan=[{k:'sq',at:330+r()*300},{k:'gp',at:900+r()*200},{k:'sp',at:1230+r()*120}]}
@@ -19,15 +20,16 @@ const RH=(()=>{
  function brk(now){if(S.shield>0){S.shield--;say('Spring water shield!','SAFE','#7fe0ff',now);return true}S.combo=0;S.pc=0;return false}
  function press(f){const now=performance.now();if(!me||!ws||ws.readyState!==1||uiOpen()||MP.locked()||S.d>=BK.L)return;FX.unlock();
   if(!S.notes.length||now-S.lastT>1800)start(now);
-  const W2=win();let n=null,bo=1e9;for(const q of S.notes)if(!q.j){const o=Math.abs(q.t-now);if(o<bo){bo=o;n=q}}
+  const W2=win();let n=null,bo=1e9,late=false;for(const q of S.notes)if(!q.j){const o=Math.abs(q.t-now);if(o<bo){bo=o;n=q;late=now>q.t}}
   if(S.ev&&S.ev.k==='gp'&&now<S.wob)bo=Math.max(0,bo-20); // makgeolli: a little forgiving
   let res,pf=false;
   if(f===S.last){S.hops++;S.hop=true;if(n&&bo<W2.G)n.j=1;
-   if(!S.same){S.same=true;brk(now);S.lvl=Math.max(0,S.lvl-2);S.nM++;res=['Tripped!','MISS','#ff6b5a']}else{S.nH++;res=['Hop hop~','HOP','#ffb0e0']}}
+   if(!S.same){S.same=true;brk(now);adj(-.2,now);S.nM++;res=['Tripped!','MISS','#ff6b5a']}else{S.nH++;res=['Hop hop~','HOP','#ffb0e0']}}
   else{S.same=false;S.hop=false;const fm=fever(now)?2:1;
-   if(n&&bo<W2.P){n.j=1;pf=true;S.combo++;S.pc++;S.lvl=Math.min(MAXL,S.lvl+(S.combo%2===0?1:0));S.nP++;S.pts+=4*fm;res=['Perfect!','PERFECT','#ffe040']}
-   else if(n&&bo<W2.G){n.j=1;S.combo++;S.pc=0;S.lvl=Math.min(MAXL,S.lvl+(S.combo%4===0?1:0));S.nG++;S.pts+=2*fm;res=['Nice!','GOOD','#7be08f']}
-   else{if(n&&bo<W2.G*1.8)n.j=1;if(!brk(now))S.lvl=Math.max(0,S.lvl-(FX.wx().slip?2:1));S.nM++;res=[FX.wx().slip?'Slipped!':'Off beat','MISS','#ff6b5a']}}
+   if(n&&bo<W2.P){n.j=1;pf=true;S.combo++;S.pc++;adj(.12*(1-.5*bo/W2.P),now);S.nP++;S.pts+=4*fm;res=['Perfect!','PERFECT','#ffe040']}
+   else if(n&&bo<W2.G){n.j=1;S.combo++;S.pc=0;adj(.035*(1-(bo-W2.P)/(W2.G-W2.P)),now);S.nG++;S.pts+=2*fm;res=[late?'Nice · a bit late':'Nice · a bit early','GOOD','#7be08f']}
+   else{const sl=FX.wx().slip?1.5:1;if(n&&bo<W2.G*1.8){n.j=1;brk(now);adj(-(.05+.1*Math.min(1,(bo-W2.G)/(W2.G*.8)))*sl,now);S.nM++;res=[FX.wx().slip?'Slipped!':late?'Too late':'Too early','LATE','#ff9a5a'];if(!late)res[1]='EARLY'}
+    else{brk(now);adj(-.22*sl,now);S.nM++;res=[FX.wx().slip?'Slipped!':'Off beat','MISS','#ff6b5a']}}}
   S.best=Math.max(S.best,S.combo);
   if(S.pc>=FEVER_N&&!fever(now)){S.fever=now+FEVER_MS;S.fevers++;S.pc=0;FX.say('🔥 FEVER TIME!','Speed ×2 · Score ×2 for 5s','#ff4fa0',2200)}
   // squirrel event: need a short perfect streak
@@ -37,12 +39,12 @@ const RH=(()=>{
   for(const p of S.evPlan)if(!p.on&&d>=p.at){p.on=1;
    if(p.k==='sq'){S.ev={k:'sq',at:d+18,need:4,got:0,until:now+7000};FX.say('🐿️ A squirrel blocks the path!','Hit 4 PERFECTs in a row to shoo it · 다람쥐','#ffcf70',2600)}
    if(p.k==='gp'){S.ev={k:'gp',at:d+14,until:now+3500};S.bon+=80;S.wob=now+3500;FX.say('👴 Makgeolli Grandpa: "One sip, young hiker!"','막걸리 할아버지 · +80 pts · tipsy beat for 3s','#f0e2b0',2600)}
-   if(p.k==='sp'){S.ev={k:'sp',at:d+14,until:now+3000};S.shield=2;S.lvl=Math.max(S.lvl,4);FX.say('💧 Mineral spring · 약수터','Fresh water! Combo Shield ×2 + speed restored','#8fe0ff',2600)}}
-  const e=S.ev;if(e&&now>e.until){if(e.k==='sq'&&!e.done){S.lvl=0;S.v*=.3;S.sq=-1;FX.say('🐿️ The squirrel stole your gimbap!','Speed lost… keep stepping!','#ff8a6a',2200)}S.ev=null}}
+   if(p.k==='sp'){S.ev={k:'sp',at:d+14,until:now+3000};S.shield=2;if(S.sp<.5)adj(.5-S.sp,now);FX.say('💧 Mineral spring · 약수터','Fresh water! Combo Shield ×2 + speed restored','#8fe0ff',2600)}}
+  const e=S.ev;if(e&&now>e.until){if(e.k==='sq'&&!e.done){adj(-1,now);S.v*=.3;S.sq=-1;FX.say('🐿️ The squirrel stole your gimbap!','Speed lost… keep stepping!','#ff8a6a',2200)}S.ev=null}}
  function tick(now){const dt=Math.min(.1,(now-(S.tPrev||now))/1000);S.tPrev=now;chart(now);
   if(S.notes.length&&now-S.lastT>1800)S.notes=[];
-  for(const n of S.notes)if(!n.j&&now-n.t>win().G+20&&now-S.lastT<1200){n.j=1;if(S.combo>0&&!brk(now))say('Missed a beat','MISS','#ff6b5a',now)}
-  const active=now-S.lastT<I()*1.6+150;let vT=active?(S.hop?HOP:BASE+S.lvl*STEPV):0;if(fever(now)&&!S.hop)vT*=2;
+  for(const n of S.notes)if(!n.j&&now-n.t>win().G+20&&now-S.lastT<1200){n.j=1;if(!brk(now))adj(-.08,now);say('Missed a beat','MISS','#ff6b5a',now)}
+  const active=now-S.lastT<I()*1.6+150;let vT=active?(S.hop?HOP:BASE+S.sp*SPR):0;if(fever(now)&&!S.hop)vT*=2;
   S.v+=(vT-S.v)*Math.min(1,dt*(vT<S.v?3:4));if(S.v<.05)S.v=0;
   if(S.sent>0&&!S.t0)S.t0=now;if(S.t0){const k=Math.floor((now-S.t0)/2000);while(S.tl.length<=k&&S.tl.length<450)S.tl.push(Math.round(S.d))}
   events(now);
@@ -72,19 +74,20 @@ const RH=(()=>{
   ctx.strokeStyle=`rgba(255,226,120,${.65+pulse*.35})`;ctx.lineWidth=3.5;ctx.beginPath();ctx.arc(tx,y,14*K+pulse*5,0,7);ctx.stroke();ctx.strokeStyle='#ffffff55';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(tx,y,9*K,0,7);ctx.stroke();
   // top line: speed · section · fever · shield
   ctx.font='600 11px sans-serif';ctx.textAlign='left';ctx.fillStyle='#fff';ctx.shadowColor='#0008';ctx.shadowBlur=3;ctx.fillText(S.hop?'HOP':'SPEED',x0+8,y-34);ctx.shadowBlur=0;
-  const gx=x0+46,gw=Math.min(100,w*.3);rr(gx,y-42,gw,8,4,'#ffffff30');const fr=S.hop?.08:S.lvl/MAXL;
+  const gx=x0+46,gw=Math.min(100,w*.3);rr(gx,y-42,gw,8,4,'#ffffff30');const fr=S.hop?.08:S.sp;
   if(fr>0){const g=ctx.createLinearGradient(gx,0,gx+gw,0);g.addColorStop(0,'#7be08f');g.addColorStop(.55,'#ffd84a');g.addColorStop(1,'#ff6b5a');ctx.beginPath();ctx.roundRect(gx,y-42,Math.max(8,gw*fr),8,4);ctx.fillStyle=S.hop?'#ffb0e0':fv?`hsl(${now/3%360},100%,60%)`:g;ctx.fill()}
-  ctx.textAlign='right';ctx.fillStyle='#fff';ctx.shadowBlur=3;ctx.fillText((S.shield?'💧×'+S.shield+'  ':'')+(fv?'🔥FEVER ':'')+(S.combo>1?'combo '+S.combo:'Lv '+S.lvl),x0+w-6,y-34);
+  ctx.textAlign='right';ctx.fillStyle='#fff';ctx.shadowBlur=3;ctx.fillText((S.shield?'💧×'+S.shield+'  ':'')+(fv?'🔥FEVER ':'')+(S.combo>1?'combo '+S.combo:'')+'  '+Math.round(S.v)+' m/s',x0+w-6,y-34);
   ctx.textAlign='center';ctx.font='600 10.5px sans-serif';ctx.fillStyle='#ffffffd0';ctx.fillText(secOf(S.d).en+'   '+FX.wx().icon,cx,y+18*K+13);ctx.shadowBlur=0;
   // fever meter (perfect streak)
   if(!fv&&S.pc>0){ctx.fillStyle='#ffe04080';for(let i=0;i<FEVER_N;i++){ctx.beginPath();ctx.arc(x0+w*.5+i*9-40,y-18*K-6,3,0,7);ctx.fillStyle=i<S.pc?'#ffe040':'#ffffff40';ctx.fill()}}
   // judgment pop above target
   const fb=S.fb;if(fb&&now-fb.at<650){const t=(now-fb.at)/650,s=t<.15?1+t*2:1.3-t*.3;ctx.save();ctx.translate(tx+30,y-80-t*14);ctx.scale(s,s);ctx.globalAlpha=1-Math.max(0,t-.6)/.4;ctx.textAlign='center';
-   ctx.font='900 italic 25px sans-serif';ctx.shadowColor='#0007';ctx.shadowBlur=8;ctx.lineWidth=4;ctx.strokeStyle='#18322a';ctx.strokeText(fb.e,0,0);ctx.fillStyle=fb.c;ctx.fillText(fb.e,0,0);ctx.font='700 13px sans-serif';ctx.lineWidth=3;ctx.strokeText(fb.t,0,18);ctx.fillStyle='#fff';ctx.fillText(fb.t,0,18);ctx.restore()}
+   ctx.font='900 italic 25px sans-serif';ctx.shadowColor='#0007';ctx.shadowBlur=8;ctx.lineWidth=4;ctx.strokeStyle='#18322a';ctx.strokeText(fb.e,0,0);ctx.fillStyle=fb.c;ctx.fillText(fb.e,0,0);ctx.font='700 13px sans-serif';ctx.lineWidth=3;ctx.strokeText(fb.t,0,18);ctx.fillStyle='#fff';ctx.fillText(fb.t,0,18);if(S.dvAt&&Math.abs(S.dvAt-fb.at)<5&&S.dv){const u=S.dv>0,txt=(u?'▲ speed +':'▼ speed ')+Math.round(S.dv*100)+'%';ctx.font='800 13px sans-serif';ctx.strokeText(txt,0,36);ctx.fillStyle=u?'#8dffb0':'#ff8a7a';ctx.fillText(txt,0,36)}ctx.restore()}
   if(!S.lastT&&me){ctx.textAlign='center';ctx.font='600 13px sans-serif';const s='Hit LEFT · RIGHT as notes reach the ring ◎',tw2=ctx.measureText(s).width+24;rr(cx-tw2/2,y-78,tw2,26,13,'rgba(20,30,28,.6)');ctx.fillStyle='#fff';ctx.fillText(s,cx,y-60)}
   ctx.restore();ctx.shadowBlur=0;ctx.textAlign='left'}
  return{sync:h=>{S.srvH=h;S.srvAt=performance.now()},_d:v=>{S.d=v},_t0:()=>S.t0,press,pos,anim,hud,reset,secOf,
   next:()=>S.notes.find(n=>!n.j),ev:()=>S.ev,fever:()=>fever(performance.now()),
-  state:()=>({lvl:S.lvl,combo:S.combo,hop:S.hop,v:S.v,d:S.d,best:S.best,sent:S.sent,nP:S.nP,nG:S.nG,nM:S.nM,nH:S.nH,hops:S.hops,fevers:S.fevers,sq:S.sq,bon:S.bon,shield:S.shield,tl:S.tl.slice()}),
+  state:()=>({lvl:S.lvl,sp:S.sp,combo:S.combo,hop:S.hop,v:S.v,d:S.d,best:S.best,sent:S.sent,nP:S.nP,nG:S.nG,nM:S.nM,nH:S.nH,hops:S.hops,fevers:S.fevers,sq:S.sq,bon:S.bon,shield:S.shield,tl:S.tl.slice()}),
   score:ms=>{const sec=ms/1000,tb=Math.max(0,Math.round((360-sec)*6)),sk=S.pts-S.nM*4-S.nH;
-   return{score:Math.max(0,tb+Math.max(0,sk)+S.best*3+S.bon),tb,sk:Math.max(0,sk),nP:S.nP,nG:S.nG,nM:S.nM,nH:S.nH,best:S.best,bon:S.bon,fevers:S.fevers,hops:S.hops,sq:S.sq,tl:S.tl.slice(),ms}}}})();
+   const tot=S.nP+S.nG+S.nM,acc=tot?(S.nP+.5*S.nG)/tot:0,am=Math.pow(acc,1.5);
+   return{score:Math.max(0,Math.round((tb+Math.max(0,sk)+S.best*3+S.bon)*am)),acc:Math.round(acc*100),am,tb,sk:Math.max(0,sk),nP:S.nP,nG:S.nG,nM:S.nM,nH:S.nH,best:S.best,bon:S.bon,fevers:S.fevers,hops:S.hops,sq:S.sq,tl:S.tl.slice(),ms}}}})();

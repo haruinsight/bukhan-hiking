@@ -20,7 +20,7 @@ function onMsg(e){const d=JSON.parse(e.data);MP.onMsg(d);
  if(d.t==='summit'){const rs=RH.score(d.ms);RH.reset();today++;localStorage['t_'+mt+'_'+dayKey()]=today;onSummit(rs,d.ms)}
  if(d.t==='rank'){$('rank').innerHTML='<b>Today\'s Top 10 · Bukhansan</b> <small>(server-timed)</small>'+d.list.map((r,i)=>`<div>${i+1}. ${String(r.name).replace(/[<>&]/g,'')} <span>${FX.fmt(r.ms)} · ★${r.score}</span></div>`).join('');$('rank').classList.remove('hide')}
  if(d.t==='ghost')FX.setTop(d.g)}
-function onSummit(rs,ms){setTimeout(()=>FX.quiz(q=>{rs.quiz=q;const score=rs.score+q,mis=FX.checkMissions({...rs,ms}),pb=FX.savePB(ms,rs.tl);
+function onSummit(rs,ms){setTimeout(()=>FX.quiz(q=>{rs.quiz=q;const score=rs.score+q,mis=FX.checkMissions({...rs,ms}),pb=FX.savePB(ms,rs.tl);if(score>(+localStorage.best_bukhan||0))localStorage.best_bukhan=score;
   LAST={mode:'walk',ms,score,det:rs,mis,pb};ws&&ws.readyState===1&&ws.send(JSON.stringify({t:'record',score,tl:rs.tl}));SAVE.touch();showCard()}),700)}
 onkeydown=e=>{if(e.repeat)return;if(e.code==='ArrowLeft'||e.code==='KeyA'){e.preventDefault();RH.press('L');ft('lf')}if(e.code==='ArrowRight'||e.code==='KeyD'){e.preventDefault();RH.press('R');ft('rf')}};
 $('mute').textContent=FX.muted()?'🔇':'🔊';$('mute').onclick=()=>{FX.unlock();$('mute').textContent=FX.toggleMute()?'🔇':'🔊'};

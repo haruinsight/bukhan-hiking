@@ -5,7 +5,14 @@ const rooms=new Map(),mps=new Map();let nid=1;
 let rank={day:'',list:[],ghost:null};const today=()=>new Date().toLocaleDateString('sv',{timeZone:'Asia/Seoul'});
 const getRank=()=>{if(rank.day!==today())rank={day:today(),list:[],ghost:null};return rank.list};
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript','.json':'application/json'};
-const srv=http.createServer((q,r)=>{const u=q.url.split('?')[0];const f=path.join(__dirname,'public',u==='/'?'index.html':path.normalize(u));
+// ── real weather (Open-Meteo, no key) · cached 30 min ──
+let WXC={at:0,v:null},WXP=null;
+async function realWx(){if(WXC.v&&Date.now()-WXC.at<30*60e3)return WXC.v;if(WXP)return WXP;
+ WXP=(async()=>{try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=37.66&longitude=126.98&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FSeoul&forecast_days=1',{signal:AbortSignal.timeout(5000)});
+  const j=await r.json();if(!j.current)throw 0;WXC={at:Date.now(),v:{ok:true,t:j.current.temperature_2m,code:j.current.weather_code,day:j.current.is_day,hi:j.daily&&j.daily.temperature_2m_max[0],lo:j.daily&&j.daily.temperature_2m_min[0],time:j.current.time}}}
+  catch(e){if(!WXC.v)WXC={at:Date.now()-25*60e3,v:{ok:false}}}finally{WXP=null}return WXC.v})();return WXP}
+const srv=http.createServer((q,r)=>{const u=q.url.split('?')[0];
+ if(u==='/api/weather'){realWx().then(v=>{r.writeHead(200,{'Content-Type':'application/json','Cache-Control':'max-age=600'});r.end(JSON.stringify(process.env.WX_FAIL?{ok:false}:v))});return}const f=path.join(__dirname,'public',u==='/'?'index.html':path.normalize(u));
  fs.readFile(f,(e,d)=>{if(e){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':types[path.extname(f)]||'text/plain'});r.end(d)})});
 const wss=new WebSocketServer({server:srv,maxPayload:4096});
 function pick(mt){let n=1;for(;;n++){const k=mt+':'+n;if(!rooms.has(k))rooms.set(k,new Map());if(rooms.get(k).size<MAX)return k}}

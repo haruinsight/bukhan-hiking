@@ -9,7 +9,7 @@ const FX=(()=>{
   snow:{k:'snow',icon:'❄️ Snow',en:'Snowy trail',ko:'눈',sub:'Icy steps: tighter timing, misses cost more!',win:.75,slip:1}};
  let wx=WX.day,ban=[],drops=[];
  F.wx=()=>wx;F.WX=WX;
- F.newRun=(force)=>{const ks=Object.keys(WX);wx=WX[force||ks[Math.floor(Math.random()*ks.length)]];ban=[];drops=[...Array(140)].map(()=>({x:Math.random(),y:Math.random(),s:.5+Math.random()}));
+ F.newRun=(force)=>{const ks=Object.keys(WX);const rk=!force&&window.MAP&&MAP.realKind&&MAP.realKind();wx=WX[force||(rk&&Math.random()<.7?rk:ks[Math.floor(Math.random()*ks.length)])];ban=[];drops=[...Array(140)].map(()=>({x:Math.random(),y:Math.random(),s:.5+Math.random()}));
   F.say(`${wx.icon.split(' ')[0]} ${wx.en} · ${wx.ko}`,wx.sub,'#fff',3800);loadGhosts()};
  F.say=(t,sub,c,ms)=>{ban.push({t,sub,c,at:performance.now(),ms:ms||2400});if(ban.length>2)ban.shift()};
  // ── music: original WebAudio gugak-pop groove (janggu-style drums + pentatonic lead) ──
